@@ -9,42 +9,42 @@ const LITERAL_STRING = 1;
 const LITERAL_BOOLEAN = 2;
 
 /**
- * �Ծ���
+ * นิพจน์
  * @author acer-pc
  *
  */
 abstract class Expression
 {
 	/**
-	 * ���ͧ expression ��ǹ��
+	 * แม่ของ expression ตัวนี้
 	 * @var Expression
 	 */
 	public $parent;
 	/**
-	 * ������ӹǳ���
+	 * สั่งให้คำนวณค่า
 	 */
 	public abstract function calculate();
 }
 /**
- * �� "��ͧ��ҧ" ����Ѻ����Ծ���ŧ�������ҡ�����ҧ�� ExpressionBuilder
+ * เป็น "ช่องว่าง" สำหรับเติมนิพจน์ลงไปในระหว่งาการสร้างโดย ExpressionBuilder
  * @author acer-pc
  *
  */
 class ExpressionHole
 {
 	/**
-	 * Expression ���١���ŧ㹪�ͧ��ҧ����
+	 * Expression ที่ถูกเติมลงในช่องว่างแล้ว
 	 * @var Expression
 	 */
 	public $expression = null;
 	/**
-	 * Operator Expression �������Ңͧ�ٹ��
+	 * Operator Expression ที่เป็นเจ้าของรูนี้
 	 * @var OperatorExpression
 	 */
 	public $owner;
 	/**
-	 * ����Ծ���ŧ���
-	 * @param Expression $exp �Ծ������ͧ������ŧ�
+	 * เติมนิพจน์ลงในรู
+	 * @param Expression $exp นิพจน์ที่ต้องการเติมลงไป
 	 */
 	public function fill($exp)
 	{
@@ -61,7 +61,7 @@ class ExpressionHole
 
 	/**
 	 *
-	 * @param OperatorExpression $owner ��Ңͧ�ͧ hole ���
+	 * @param OperatorExpression $owner เจ้าของของ hole นี้
 	 */
 	public function __construct($owner)
 	{
@@ -69,19 +69,19 @@ class ExpressionHole
 	}
 }
 /**
- * �繵��᷹�ͧ literal (���� string, number, boolean)
+ * เป็นตัวแทนของ literal (ได้แก่ string, number, boolean)
  * @author acer-pc
  *
  */
 class Literal extends Expression
 {
 	/**
-	 * ��Ңͧ literal ���
+	 * ค่าของ literal นี้
 	 * @var mixed
 	 */
 	private $value;
 	/**
-	 * ��Դ�ͧ literal ���
+	 * ชนิดของ literal นี้
 	 * @var int
 	 */
 	public $type;
@@ -96,15 +96,15 @@ class Literal extends Expression
 
 	/**
 	 *
-	 * @param string $literal ��Ңͧ literal ��ٻ�ͧʵ�ԧ
-	 * @param int $type ��Դ�ͧ literal ���� LITERAL_NUMBER, LITERAL_STRING, LITERAL_BOOLEAN
+	 * @param string $literal ค่าของ literal ในรูปของสตริง
+	 * @param int $type ชนิดของ literal ได้แก่ LITERAL_NUMBER, LITERAL_STRING, LITERAL_BOOLEAN
 	 */
 	public function __construct($literal, $type)
 	{
 		switch($type)
 		{
 			case LITERAL_NUMBER:
-				//����ըش�ȹ���
+				//ถ้ามีจุดทศนิยม
 				if(strpos($literal, ".") !== false)
 				{
 					$this->value = floatval($literal);
@@ -150,12 +150,12 @@ class Literal extends Expression
 class VariableExpression extends Expression
 {
 	/**
-	 * ���͵����
+	 * ชื่อตัวแปร
 	 * @var Variable
 	 */
 	private $var;
 	/**
-	 * ����¡�âͧ modifier
+	 * เก็บรายการของ modifier
 	 * @var array
 	 */
 	public $modifier = [];
@@ -164,7 +164,7 @@ class VariableExpression extends Expression
 	{
 		if($base === null || !is_array($base))
 		{
-			//���¡�ٵ���èҡ current context
+			//เรียกดูตัวแปรจาก current context
 		}
 		else
 		{
@@ -174,7 +174,7 @@ class VariableExpression extends Expression
 
 	/**
 	 *
-	 * @param string $name ���͵����
+	 * @param string $name ชื่อตัวแปร
 	 * @param string $modifier modifier
 	 */
 	public function __construct($name, $modifier = "")
@@ -183,7 +183,7 @@ class VariableExpression extends Expression
 		$this->modifier = $modifier;
 	}
 	/**
-	 * �֧���͵���� ���ͤ������ ����кص������
+	 * ดึงชื่อตัวแปร หรือค่าอื่นๆ ที่ระบุตัวแปรได้
 	 * @return mixed
 	 */
 	public function get_var_name()
@@ -195,7 +195,7 @@ class VariableExpression extends Expression
 class Closure extends Expression
 {
 	/**
-	 * �� expression ����� ���
+	 * เก็บ expression ย่อยๆ ไว้
 	 * @var array
 	 */
 	public $expr_list = [];
@@ -208,8 +208,8 @@ class Closure extends Expression
 		return $this->expr_list[0]->calculate();
 	}
 	/**
-	 * �ӹǳ expression �ء������¡��
-	 * @return �׹��Ҽš�äӹǳ ���§����ӴѺ�ͧ expression ����
+	 * คำนวณ expression ทุกตัวในรายการ
+	 * @return คืนค่าผลการคำนวณ เรียงตามลำดับของ expression ย่อย
 	 */
 	public function calculate_all()
 	{
@@ -221,8 +221,8 @@ class Closure extends Expression
 		return $ret;
 	}
 	/**
-	 * �����Ծ���ŧ���¡��
-	 * @param Expression $expr �Ծ����������
+	 * เพิ่มนิพจน์ลงในรายการ
+	 * @param Expression $expr นิพจน์ที่จะเพิ่ม
 	 */
 	public function add_expr($expr)
 	{
@@ -234,17 +234,17 @@ class Closure extends Expression
 class OperatorExpression extends Expression
 {
 	/**
-	 * �� "��ͧ��ҧ" ����Ѻ��Ƕ١���Թ��÷ҧ��ҹ����
+	 * เก็บ "ช่องว่าง" สำหรับตัวถูกดำเนินการทางด้านซ้าย
 	 * @var ExpressionHole
 	 */
 	public $left;
 	/**
-	 * �� "��ͧ��ҧ" ����Ѻ��Ƕ١���Թ��÷ҧ��ҹ���
+	 * เก็บ "ช่องว่าง" สำหรับตัวถูกดำเนินการทางด้านขวา
 	 * @var ExpressionHole
 	 */
 	public $right;
 	/**
-	 * �纵�Ǵ��Թ��û�ШӹԾ�����
+	 * เก็บตัวดำเนินการประจำนิพจน์นี้
 	 * @var Operator
 	 */
 	public $operator;
@@ -257,8 +257,8 @@ class OperatorExpression extends Expression
 		return $this->operator->operation($this->left->expression, $this->right->expression);
 	}
 	/**
-	 * ��Ѻ�����šѺ operator expression �ա���
-	 * (���ѧ! ����Ѻ������㹵������� ���͵���������١��Ѻ����)
+	 * สลับข้อมูลกับ operator expression อีกตัว
+	 * (ระวัง! จะสลับข้อมูลในตัวแปรเฉยๆ ชื่อตัวแปรไม่ได้ถูกสลับด้วย)
 	 * @param OperatorExpression $exp
 	 */
 	public function swap($exp)

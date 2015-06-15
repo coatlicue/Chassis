@@ -22,14 +22,14 @@ include_once __DIR__.'/../Intermediate/Operators.php';
 include_once __DIR__.'/../Intermediate/Expression.php';
 
 /**
- * ‡ªÁπ∑’Ë√Õß√—∫π‘æ®πÏ„π√–À«Ë“ß°“√ √È“ß‚¥¬ ExpressionBuilder
+ * ‡πÄ‡∏õ‡πá‡∏ô‡∏ó‡∏µ‡πà‡∏£‡∏≠‡∏á‡∏£‡∏±‡∏ö‡∏ô‡∏¥‡∏û‡∏à‡∏ô‡πå‡πÉ‡∏ô‡∏£‡∏∞‡∏´‡∏ß‡πà‡∏≤‡∏á‡∏Å‡∏≤‡∏£‡∏™‡∏£‡πâ‡∏≤‡∏á‡πÇ‡∏î‡∏¢ ExpressionBuilder
  * @author acer-pc
  *
  */
 class ExpressionSandbox extends Expression
 {
 	/**
-	 * ™ËÕß«Ë“ß ”À√—∫‡°Á∫ Expression
+	 * ‡∏ä‡πà‡∏≠‡∏á‡∏ß‡πà‡∏≤‡∏á‡∏™‡∏≥‡∏´‡∏£‡∏±‡∏ö‡πÄ‡∏Å‡πá‡∏ö Expression
 	 * @var ExpressionHole
 	 */
 	public $hole;
@@ -48,29 +48,29 @@ class ExpressionSandbox extends Expression
 	}
 }
 /**
- * §≈“ π’È®–™Ë«¬„π°“√ √È“ß Expression tree
+ * ‡∏Ñ‡∏•‡∏≤‡∏™‡∏ô‡∏µ‡πâ‡∏à‡∏∞‡∏ä‡πà‡∏ß‡∏¢‡πÉ‡∏ô‡∏Å‡∏≤‡∏£‡∏™‡∏£‡πâ‡∏≤‡∏á Expression tree
  * @author acer-pc
  *
  */
 class ExpressionBuilder
 {
 	/**
-	 * ™ËÕß«Ë“ß∑’Ë°”≈—ß‡«Èπ‰«È„ÀÈ‡µ‘¡π‘æ®πÏ
+	 * ‡∏ä‡πà‡∏≠‡∏á‡∏ß‡πà‡∏≤‡∏á‡∏ó‡∏µ‡πà‡∏Å‡∏≥‡∏•‡∏±‡∏á‡πÄ‡∏ß‡πâ‡∏ô‡πÑ‡∏ß‡πâ‡πÉ‡∏´‡πâ‡πÄ‡∏ï‡∏¥‡∏°‡∏ô‡∏¥‡∏û‡∏à‡∏ô‡πå
 	 * @var ExpressionHole
 	 */
 	protected $available_hole;
 	/**
-	 * operator expression µ—«≈Ë“ ÿ¥∑’Ë∂Ÿ°‡æ‘Ë¡‡¢È“¡“
+	 * operator expression ‡∏ï‡∏±‡∏ß‡∏•‡πà‡∏≤‡∏™‡∏∏‡∏î‡∏ó‡∏µ‡πà‡∏ñ‡∏π‡∏Å‡πÄ‡∏û‡∏¥‡πà‡∏°‡πÄ‡∏Ç‡πâ‡∏≤‡∏°‡∏≤
 	 * @var OperatorExpression
 	 */
 	protected $latest_oper_exp;
 	/**
-	 * expression sandbox ∑’Ë‡°Á∫ expression tree ∑’Ë°”≈—ß∂Ÿ° √È“ß¢÷Èπ
+	 * expression sandbox ‡∏ó‡∏µ‡πà‡πÄ‡∏Å‡πá‡∏ö expression tree ‡∏ó‡∏µ‡πà‡∏Å‡∏≥‡∏•‡∏±‡∏á‡∏ñ‡∏π‡∏Å‡∏™‡∏£‡πâ‡∏≤‡∏á‡∏Ç‡∏∂‡πâ‡∏ô
 	 * @var ExpressionSandbox
 	 */
 	protected $sandbox;
 	/**
-	 * operator ∑’Ë°”≈—ß√Õ°“√‡æ‘Ë¡
+	 * operator ‡∏ó‡∏µ‡πà‡∏Å‡∏≥‡∏•‡∏±‡∏á‡∏£‡∏≠‡∏Å‡∏≤‡∏£‡πÄ‡∏û‡∏¥‡πà‡∏°
 	 * @var Operator
 	 */
 	protected $pending_oper;
@@ -82,7 +82,7 @@ class ExpressionBuilder
 	}
 	
 	/**
-	 * ¥÷ß expression ∑’Ë √È“ß‡ √Á®·≈È«
+	 * ‡∏î‡∏∂‡∏á expression ‡∏ó‡∏µ‡πà‡∏™‡∏£‡πâ‡∏≤‡∏á‡πÄ‡∏™‡∏£‡πá‡∏à‡πÅ‡∏•‡πâ‡∏ß
 	 * @var Expression
 	 */
 	public function get_expr()
@@ -99,16 +99,16 @@ class ExpressionBuilder
 		}
 	}
 	/**
-	 * ‡æ‘Ë¡π‘æ®πÏ≈ß„π™ËÕß«Ë“ß
-	 * @param mixed $exp  “¡“√∂√–∫ÿ‡ªÁπ
-	 * @return ∂È“‡°‘¥§«“¡º‘¥æ≈“¥¢÷Èπ ®–§◊π§Ë“¥—ßπ’È
-	 * EB_ERROR_REQUIRED_INFIX_OR_POSTFIX_OPER : µÈÕß°“√µ—«¥”‡π‘π°“√™π‘¥ infix À√◊Õ postfix
-	 * EB_ERROR_REQUIRED_EXP_OR_PREFIX_OPER : µÈÕß°“√π‘æ®πÏ À√◊Õµ—«¥”‡π‘π°“√™π‘¥ prefix
-	 * ∂È“À“°‰¡Ë¡’§«“¡º‘¥æ≈“¥ ®–§◊π§Ë“ 0
+	 * ‡πÄ‡∏û‡∏¥‡πà‡∏°‡∏ô‡∏¥‡∏û‡∏à‡∏ô‡πå‡∏•‡∏á‡πÉ‡∏ô‡∏ä‡πà‡∏≠‡∏á‡∏ß‡πà‡∏≤‡∏á
+	 * @param mixed $exp ‡∏™‡∏≤‡∏°‡∏≤‡∏£‡∏ñ‡∏£‡∏∞‡∏ö‡∏∏‡πÄ‡∏õ‡πá‡∏ô
+	 * @return ‡∏ñ‡πâ‡∏≤‡πÄ‡∏Å‡∏¥‡∏î‡∏Ñ‡∏ß‡∏≤‡∏°‡∏ú‡∏¥‡∏î‡∏û‡∏•‡∏≤‡∏î‡∏Ç‡∏∂‡πâ‡∏ô ‡∏à‡∏∞‡∏Ñ‡∏∑‡∏ô‡∏Ñ‡πà‡∏≤‡∏î‡∏±‡∏á‡∏ô‡∏µ‡πâ
+	 * EB_ERROR_REQUIRED_INFIX_OR_POSTFIX_OPER : ‡∏ï‡πâ‡∏≠‡∏á‡∏Å‡∏≤‡∏£‡∏ï‡∏±‡∏ß‡∏î‡∏≥‡πÄ‡∏ô‡∏¥‡∏ô‡∏Å‡∏≤‡∏£‡∏ä‡∏ô‡∏¥‡∏î infix ‡∏´‡∏£‡∏∑‡∏≠ postfix
+	 * EB_ERROR_REQUIRED_EXP_OR_PREFIX_OPER : ‡∏ï‡πâ‡∏≠‡∏á‡∏Å‡∏≤‡∏£‡∏ô‡∏¥‡∏û‡∏à‡∏ô‡πå ‡∏´‡∏£‡∏∑‡∏≠‡∏ï‡∏±‡∏ß‡∏î‡∏≥‡πÄ‡∏ô‡∏¥‡∏ô‡∏Å‡∏≤‡∏£‡∏ä‡∏ô‡∏¥‡∏î prefix
+	 * ‡∏ñ‡πâ‡∏≤‡∏´‡∏≤‡∏Å‡πÑ‡∏°‡πà‡∏°‡∏µ‡∏Ñ‡∏ß‡∏≤‡∏°‡∏ú‡∏¥‡∏î‡∏û‡∏•‡∏≤‡∏î ‡∏à‡∏∞‡∏Ñ‡∏∑‡∏ô‡∏Ñ‡πà‡∏≤ 0
 	 */
 	public function add_expression($exp)
 	{
-		//∂È“¡’ oper ™π‘¥ infix ∑’Ë°”≈—ß√Õ°“√∂Ÿ°‡µ‘¡ °Á„ÀÈ‡µ‘¡≈ß‰ª‰¥È‡≈¬
+		//‡∏ñ‡πâ‡∏≤‡∏°‡∏µ oper ‡∏ä‡∏ô‡∏¥‡∏î infix ‡∏ó‡∏µ‡πà‡∏Å‡∏≥‡∏•‡∏±‡∏á‡∏£‡∏≠‡∏Å‡∏≤‡∏£‡∏ñ‡∏π‡∏Å‡πÄ‡∏ï‡∏¥‡∏° ‡∏Å‡πá‡πÉ‡∏´‡πâ‡πÄ‡∏ï‡∏¥‡∏°‡∏•‡∏á‡πÑ‡∏õ‡πÑ‡∏î‡πâ‡πÄ‡∏•‡∏¢
 		if($this->pending_oper !== null)
 		{
 			$prev_oper = $this->pending_oper;
@@ -117,23 +117,23 @@ class ExpressionBuilder
 		}
 		
 		if($this->available_hole !== null)
-		{ //∂È“¡’™ËÕß«Ë“ß ”À√—∫‡µ‘¡π‘æ®πÏ
+		{ //‡∏ñ‡πâ‡∏≤‡∏°‡∏µ‡∏ä‡πà‡∏≠‡∏á‡∏ß‡πà‡∏≤‡∏á‡∏™‡∏≥‡∏´‡∏£‡∏±‡∏ö‡πÄ‡∏ï‡∏¥‡∏°‡∏ô‡∏¥‡∏û‡∏à‡∏ô‡πå
 			$this->available_hole->fill($exp);
 			$this->available_hole = null;
 			return 0;
 		}
 		else
-		{ //∂È“‰¡Ë¡’™ËÕß«Ë“ß·≈È«
+		{ //‡∏ñ‡πâ‡∏≤‡πÑ‡∏°‡πà‡∏°‡∏µ‡∏ä‡πà‡∏≠‡∏á‡∏ß‡πà‡∏≤‡∏á‡πÅ‡∏•‡πâ‡∏ß
 			throw new \Exception(null, EB_ERROR_REQUIRED_INFIX_OR_POSTFIX_OPER);
 		}
 	}
 	/**
-	 * ‡æ‘Ë¡µ—«¥”‡π‘π°“√
+	 * ‡πÄ‡∏û‡∏¥‡πà‡∏°‡∏ï‡∏±‡∏ß‡∏î‡∏≥‡πÄ‡∏ô‡∏¥‡∏ô‡∏Å‡∏≤‡∏£
 	 * @param Expression $exp
-	 * @return ∂È“‡°‘¥§«“¡º‘¥æ≈“¥¢÷Èπ ®–§◊π§Ë“¥—ßπ’È
-	 * EB_ERROR_REQUIRED_INFIX_OR_POSTFIX_OPER : µÈÕß°“√µ—«¥”‡π‘π°“√™π‘¥ infix À√◊Õ postfix
-	 * EB_ERROR_REQUIRED_EXP_OR_PREFIX_OPER : µÈÕß°“√π‘æ®πÏ À√◊Õµ—«¥”‡π‘π°“√™π‘¥ prefix
-	 * ∂È“À“°‰¡Ë¡’§«“¡º‘¥æ≈“¥ ®–§◊π§Ë“ 0
+	 * @return ‡∏ñ‡πâ‡∏≤‡πÄ‡∏Å‡∏¥‡∏î‡∏Ñ‡∏ß‡∏≤‡∏°‡∏ú‡∏¥‡∏î‡∏û‡∏•‡∏≤‡∏î‡∏Ç‡∏∂‡πâ‡∏ô ‡∏à‡∏∞‡∏Ñ‡∏∑‡∏ô‡∏Ñ‡πà‡∏≤‡∏î‡∏±‡∏á‡∏ô‡∏µ‡πâ
+	 * EB_ERROR_REQUIRED_INFIX_OR_POSTFIX_OPER : ‡∏ï‡πâ‡∏≠‡∏á‡∏Å‡∏≤‡∏£‡∏ï‡∏±‡∏ß‡∏î‡∏≥‡πÄ‡∏ô‡∏¥‡∏ô‡∏Å‡∏≤‡∏£‡∏ä‡∏ô‡∏¥‡∏î infix ‡∏´‡∏£‡∏∑‡∏≠ postfix
+	 * EB_ERROR_REQUIRED_EXP_OR_PREFIX_OPER : ‡∏ï‡πâ‡∏≠‡∏á‡∏Å‡∏≤‡∏£‡∏ô‡∏¥‡∏û‡∏à‡∏ô‡πå ‡∏´‡∏£‡∏∑‡∏≠‡∏ï‡∏±‡∏ß‡∏î‡∏≥‡πÄ‡∏ô‡∏¥‡∏ô‡∏Å‡∏≤‡∏£‡∏ä‡∏ô‡∏¥‡∏î prefix
+	 * ‡∏ñ‡πâ‡∏≤‡∏´‡∏≤‡∏Å‡πÑ‡∏°‡πà‡∏°‡∏µ‡∏Ñ‡∏ß‡∏≤‡∏°‡∏ú‡∏¥‡∏î‡∏û‡∏•‡∏≤‡∏î ‡∏à‡∏∞‡∏Ñ‡∏∑‡∏ô‡∏Ñ‡πà‡∏≤ 0
 	 */
 	public function add_operator($oper)
 	{
@@ -144,7 +144,7 @@ class ExpressionBuilder
 			$postfix = $oper->has(I\OPER_POSTFIX);
 			if($this->available_hole !== null)
 			{
-				//∂È“ oper ™π‘¥π’È “¡“√∂‡ªÁπ prefix ‰¥È ·≈–¬—ß¡’√Ÿ«Ë“ßÕ¬ŸË °Á„ÀÈ®—¥™π‘¥‡ªÁπ prefix
+				//‡∏ñ‡πâ‡∏≤ oper ‡∏ä‡∏ô‡∏¥‡∏î‡∏ô‡∏µ‡πâ‡∏™‡∏≤‡∏°‡∏≤‡∏£‡∏ñ‡πÄ‡∏õ‡πá‡∏ô prefix ‡πÑ‡∏î‡πâ ‡πÅ‡∏•‡∏∞‡∏¢‡∏±‡∏á‡∏°‡∏µ‡∏£‡∏π‡∏ß‡πà‡∏≤‡∏á‡∏≠‡∏¢‡∏π‡πà ‡∏Å‡πá‡πÉ‡∏´‡πâ‡∏à‡∏±‡∏î‡∏ä‡∏ô‡∏¥‡∏î‡πÄ‡∏õ‡πá‡∏ô prefix
 				if($prefix)
 				{
 					return $this->internal_add_operator($oper->get(I\OPER_PREFIX));
@@ -155,21 +155,21 @@ class ExpressionBuilder
 				}
 			}
 			else
-			{ //∂È“√Ÿ‰¡Ë«Ë“ß ®–√Õß√—∫‡©æ“– infix ·≈– postfix ‡∑Ë“π—Èπ
-				if($infix && $postfix) //∂È“‡ªÁπ∑—Èß infix ·≈– postfix
+			{ //‡∏ñ‡πâ‡∏≤‡∏£‡∏π‡πÑ‡∏°‡πà‡∏ß‡πà‡∏≤‡∏á ‡∏à‡∏∞‡∏£‡∏≠‡∏á‡∏£‡∏±‡∏ö‡πÄ‡∏â‡∏û‡∏≤‡∏∞ infix ‡πÅ‡∏•‡∏∞ postfix ‡πÄ‡∏ó‡πà‡∏≤‡∏ô‡∏±‡πâ‡∏ô
+				if($infix && $postfix) //‡∏ñ‡πâ‡∏≤‡πÄ‡∏õ‡πá‡∏ô‡∏ó‡∏±‡πâ‡∏á infix ‡πÅ‡∏•‡∏∞ postfix
 				{
 					$this->pending_oper = $oper;
 					return 0;
 				}
-				else if($infix && !$postfix) //∂È“‡ªÁπ infix Õ¬Ë“ß‡¥’¬«
+				else if($infix && !$postfix) //‡∏ñ‡πâ‡∏≤‡πÄ‡∏õ‡πá‡∏ô infix ‡∏≠‡∏¢‡πà‡∏≤‡∏á‡πÄ‡∏î‡∏µ‡∏¢‡∏ß
 				{
 					return $this->internal_add_operator($oper->get(I\OPER_INFIX));
 				}
-				else if(!$infix && $postfix) //∂È“‡ªÁπ postfix Õ¬Ë“ß‡¥’¬«
+				else if(!$infix && $postfix) //‡∏ñ‡πâ‡∏≤‡πÄ‡∏õ‡πá‡∏ô postfix ‡∏≠‡∏¢‡πà‡∏≤‡∏á‡πÄ‡∏î‡∏µ‡∏¢‡∏ß
 				{
 					return $this->internal_add_operator($oper->get(I\OPER_POSTFIX));
 				}
-				else //∂È“‰¡Ë‰¥È‡ªÁπ —°Õ¬Ë“ß‡≈¬
+				else //‡∏ñ‡πâ‡∏≤‡πÑ‡∏°‡πà‡πÑ‡∏î‡πâ‡πÄ‡∏õ‡πá‡∏ô‡∏™‡∏±‡∏Å‡∏≠‡∏¢‡πà‡∏≤‡∏á‡πÄ‡∏•‡∏¢
 				{
 					throw new \Exception(null, EB_ERROR_REQUIRED_INFIX_OR_POSTFIX_OPER);
 				}
@@ -190,61 +190,61 @@ class ExpressionBuilder
 		}	
 		else if($oper->affix === I\OPER_INFIX || $oper->affix === I\OPER_POSTFIX)
 		{
-			//∂È“¬—ß¡’ oper ™π‘¥ postfix ∑’Ë√Õ°“√ √È“ßÕ¬ŸË °Á„ÀÈ √È“ß‰¥È‡≈¬
+			//‡∏ñ‡πâ‡∏≤‡∏¢‡∏±‡∏á‡∏°‡∏µ oper ‡∏ä‡∏ô‡∏¥‡∏î postfix ‡∏ó‡∏µ‡πà‡∏£‡∏≠‡∏Å‡∏≤‡∏£‡∏™‡∏£‡πâ‡∏≤‡∏á‡∏≠‡∏¢‡∏π‡πà ‡∏Å‡πá‡πÉ‡∏´‡πâ‡∏™‡∏£‡πâ‡∏≤‡∏á‡πÑ‡∏î‡πâ‡πÄ‡∏•‡∏¢
 			if($this->pending_oper !== null)
 			{
 				$prev_oper = $this->pending_oper;
 				$this->pending_oper = null;
 				if(($r = $this->internal_add_operator($prev_oper->get(I\OPER_POSTFIX))) !== 0) return $r;
 			}
-			//∂È“¬—ß¡’√Ÿ«Ë“ßÕ¬ŸË ®–‰¡Ë “¡“√∂‡æ‘Ë¡µ—«¥”‡π‘π°“√„À¡Ë‰¥È
+			//‡∏ñ‡πâ‡∏≤‡∏¢‡∏±‡∏á‡∏°‡∏µ‡∏£‡∏π‡∏ß‡πà‡∏≤‡∏á‡∏≠‡∏¢‡∏π‡πà ‡∏à‡∏∞‡πÑ‡∏°‡πà‡∏™‡∏≤‡∏°‡∏≤‡∏£‡∏ñ‡πÄ‡∏û‡∏¥‡πà‡∏°‡∏ï‡∏±‡∏ß‡∏î‡∏≥‡πÄ‡∏ô‡∏¥‡∏ô‡∏Å‡∏≤‡∏£‡πÉ‡∏´‡∏°‡πà‡πÑ‡∏î‡πâ
 			if($this->available_hole !== null) 
 				throw new \Exception(null, EB_ERROR_REQUIRED_EXP_OR_PREFIX_OPER);
 			if($this->latest_oper_exp !== null)
 			{
-				//‡ª√’¬∫‡∑’¬∫ precedence °—∫µ—«¥”‡π‘π°“√°ËÕπÀπÈ“
+				//‡πÄ‡∏õ‡∏£‡∏µ‡∏¢‡∏ö‡πÄ‡∏ó‡∏µ‡∏¢‡∏ö precedence ‡∏Å‡∏±‡∏ö‡∏ï‡∏±‡∏ß‡∏î‡∏≥‡πÄ‡∏ô‡∏¥‡∏ô‡∏Å‡∏≤‡∏£‡∏Å‡πà‡∏≠‡∏ô‡∏´‡∏ô‡πâ‡∏≤
 				$previous_oper_exp = $this->latest_oper_exp;
 				compare_precedence:
-				//∂È“ precedence ¢Õßµ—«¥”‡π‘π°“√°ËÕπÀπÈ“π’È¡’§Ë“¡“°°«Ë“ À√◊Õ‡ªÁπ postfix operator
+				//‡∏ñ‡πâ‡∏≤ precedence ‡∏Ç‡∏≠‡∏á‡∏ï‡∏±‡∏ß‡∏î‡∏≥‡πÄ‡∏ô‡∏¥‡∏ô‡∏Å‡∏≤‡∏£‡∏Å‡πà‡∏≠‡∏ô‡∏´‡∏ô‡πâ‡∏≤‡∏ô‡∏µ‡πâ‡∏°‡∏µ‡∏Ñ‡πà‡∏≤‡∏°‡∏≤‡∏Å‡∏Å‡∏ß‡πà‡∏≤ ‡∏´‡∏£‡∏∑‡∏≠‡πÄ‡∏õ‡πá‡∏ô postfix operator
 				if($previous_oper_exp->operator->precedence >= $oper->precedence
 					|| $previous_oper_exp->operator->affix === I\OPER_POSTFIX)
 				{
-					//∂È“π‘æ®πÏ™—Èπ∫π‡ªÁπ OperatorExpression
+					//‡∏ñ‡πâ‡∏≤‡∏ô‡∏¥‡∏û‡∏à‡∏ô‡πå‡∏ä‡∏±‡πâ‡∏ô‡∏ö‡∏ô‡πÄ‡∏õ‡πá‡∏ô OperatorExpression
 					if($previous_oper_exp->parent instanceof OperatorExpression)
 					{
-						//‡≈◊ËÕπ¢÷Èπ‰ª‡ª√’¬∫‡∑’¬∫ precedence °—∫ operator ™—Èπ∫πÕ’°
+						//‡πÄ‡∏•‡∏∑‡πà‡∏≠‡∏ô‡∏Ç‡∏∂‡πâ‡∏ô‡πÑ‡∏õ‡πÄ‡∏õ‡∏£‡∏µ‡∏¢‡∏ö‡πÄ‡∏ó‡∏µ‡∏¢‡∏ö precedence ‡∏Å‡∏±‡∏ö operator ‡∏ä‡∏±‡πâ‡∏ô‡∏ö‡∏ô‡∏≠‡∏µ‡∏Å
 						$previous_oper_exp = $previous_oper_exp->parent;
 						goto compare_precedence;
 					}
 					else
-					{ //∂È“π‘æ®πÏ™—Èπ∫π‰¡Ë‰¥È‡ªÁπ OperatorExpression °Á®–‰¡Ë‡≈◊ËÕπ¢÷Èπ‰ª™—Èπ∫πÕ’°
-						// ≈—∫∑’Ëπ‘æ®πÏ°ËÕπÀπÈ“°—∫π‘æ®πÏ∑’Ë®–‡æ‘Ë¡‡¢È“¡“„À¡Ë
+					{ //‡∏ñ‡πâ‡∏≤‡∏ô‡∏¥‡∏û‡∏à‡∏ô‡πå‡∏ä‡∏±‡πâ‡∏ô‡∏ö‡∏ô‡πÑ‡∏°‡πà‡πÑ‡∏î‡πâ‡πÄ‡∏õ‡πá‡∏ô OperatorExpression ‡∏Å‡πá‡∏à‡∏∞‡πÑ‡∏°‡πà‡πÄ‡∏•‡∏∑‡πà‡∏≠‡∏ô‡∏Ç‡∏∂‡πâ‡∏ô‡πÑ‡∏õ‡∏ä‡∏±‡πâ‡∏ô‡∏ö‡∏ô‡∏≠‡∏µ‡∏Å
+						//‡∏™‡∏•‡∏±‡∏ö‡∏ó‡∏µ‡πà‡∏ô‡∏¥‡∏û‡∏à‡∏ô‡πå‡∏Å‡πà‡∏≠‡∏ô‡∏´‡∏ô‡πâ‡∏≤‡∏Å‡∏±‡∏ö‡∏ô‡∏¥‡∏û‡∏à‡∏ô‡πå‡∏ó‡∏µ‡πà‡∏à‡∏∞‡πÄ‡∏û‡∏¥‡πà‡∏°‡πÄ‡∏Ç‡πâ‡∏≤‡∏°‡∏≤‡πÉ‡∏´‡∏°‡πà
 						$previous_oper_exp->swap($exp);
-						//π”π‘æ®πÏ°ËÕπÀπÈ“‰ª‡µ‘¡∑’Ë·¢π¢È“ß´È“¬¢Õßπ‘æ®πÏ„À¡Ë ( ≈—∫™◊ËÕµ—«·ª√°—π)
+						//‡∏ô‡∏≥‡∏ô‡∏¥‡∏û‡∏à‡∏ô‡πå‡∏Å‡πà‡∏≠‡∏ô‡∏´‡∏ô‡πâ‡∏≤‡πÑ‡∏õ‡πÄ‡∏ï‡∏¥‡∏°‡∏ó‡∏µ‡πà‡πÅ‡∏Ç‡∏ô‡∏Ç‡πâ‡∏≤‡∏á‡∏ã‡πâ‡∏≤‡∏¢‡∏Ç‡∏≠‡∏á‡∏ô‡∏¥‡∏û‡∏à‡∏ô‡πå‡πÉ‡∏´‡∏°‡πà (‡∏™‡∏•‡∏±‡∏ö‡∏ä‡∏∑‡πà‡∏≠‡∏ï‡∏±‡∏ß‡πÅ‡∏õ‡∏£‡∏Å‡∏±‡∏ô)
 						$previous_oper_exp->left->fill($exp);
-						//‡ª≈’Ë¬π™◊ËÕµ—«·ª√°≈—∫§◊π
+						//‡πÄ‡∏õ‡∏•‡∏µ‡πà‡∏¢‡∏ô‡∏ä‡∏∑‡πà‡∏≠‡∏ï‡∏±‡∏ß‡πÅ‡∏õ‡∏£‡∏Å‡∏•‡∏±‡∏ö‡∏Ñ‡∏∑‡∏ô
 						$exp = $previous_oper_exp;
 					}
 				}
 				else
-				{ //∂È“ precedence πÈÕ¬°«Ë“
-					//π”·¢π¢«“¢Õßπ‘æ®πÏ°ËÕπÀπÈ“¡“‡µ‘¡„ÀÈ°—∫·¢π´È“¬¢Õßπ‘æ®πÏ„À¡Ë
+				{ //‡∏ñ‡πâ‡∏≤ precedence ‡∏ô‡πâ‡∏≠‡∏¢‡∏Å‡∏ß‡πà‡∏≤
+					//‡∏ô‡∏≥‡πÅ‡∏Ç‡∏ô‡∏Ç‡∏ß‡∏≤‡∏Ç‡∏≠‡∏á‡∏ô‡∏¥‡∏û‡∏à‡∏ô‡πå‡∏Å‡πà‡∏≠‡∏ô‡∏´‡∏ô‡πâ‡∏≤‡∏°‡∏≤‡πÄ‡∏ï‡∏¥‡∏°‡πÉ‡∏´‡πâ‡∏Å‡∏±‡∏ö‡πÅ‡∏Ç‡∏ô‡∏ã‡πâ‡∏≤‡∏¢‡∏Ç‡∏≠‡∏á‡∏ô‡∏¥‡∏û‡∏à‡∏ô‡πå‡πÉ‡∏´‡∏°‡πà
 					$exp->left->fill($previous_oper_exp->right->expression);
-					//‡µ‘¡π‘æ®πÏ„À¡Ë‡¢È“∑’Ë·¢π¢«“¢Õßπ‘æ®πÏ∑’ËÕ¬ŸË‡Àπ◊Õ¢÷Èπ‰ª®“°π‘æ®πÏ°ËÕπÀπÈ“
+					//‡πÄ‡∏ï‡∏¥‡∏°‡∏ô‡∏¥‡∏û‡∏à‡∏ô‡πå‡πÉ‡∏´‡∏°‡πà‡πÄ‡∏Ç‡πâ‡∏≤‡∏ó‡∏µ‡πà‡πÅ‡∏Ç‡∏ô‡∏Ç‡∏ß‡∏≤‡∏Ç‡∏≠‡∏á‡∏ô‡∏¥‡∏û‡∏à‡∏ô‡πå‡∏ó‡∏µ‡πà‡∏≠‡∏¢‡∏π‡πà‡πÄ‡∏´‡∏ô‡∏∑‡∏≠‡∏Ç‡∏∂‡πâ‡∏ô‡πÑ‡∏õ‡∏à‡∏≤‡∏Å‡∏ô‡∏¥‡∏û‡∏à‡∏ô‡πå‡∏Å‡πà‡∏≠‡∏ô‡∏´‡∏ô‡πâ‡∏≤
 					$previous_oper_exp->right->fill($exp);
 				}
 			}
 			else 
-			{ //∂È“‰¡Ë¡’ operator expression °ËÕπÀπÈ“π’È
-				//π” expression ∑’Ë‡ªÁπ≈Ÿ°¢Õß sandbox ¡“„ Ë∑’Ë·¢π´È“¬¢Õßπ‘æ®πÏ„À¡Ë
+			{ //‡∏ñ‡πâ‡∏≤‡πÑ‡∏°‡πà‡∏°‡∏µ operator expression ‡∏Å‡πà‡∏≠‡∏ô‡∏´‡∏ô‡πâ‡∏≤‡∏ô‡∏µ‡πâ
+				//‡∏ô‡∏≥ expression ‡∏ó‡∏µ‡πà‡πÄ‡∏õ‡πá‡∏ô‡∏•‡∏π‡∏Å‡∏Ç‡∏≠‡∏á sandbox ‡∏°‡∏≤‡πÉ‡∏™‡πà‡∏ó‡∏µ‡πà‡πÅ‡∏Ç‡∏ô‡∏ã‡πâ‡∏≤‡∏¢‡∏Ç‡∏≠‡∏á‡∏ô‡∏¥‡∏û‡∏à‡∏ô‡πå‡πÉ‡∏´‡∏°‡πà
 				$exp->left->fill($this->sandbox->hole->expression);
-				//π”π‘æ®πÏ„À¡Ë‰ªµ—Èß‡ªÁπ≈Ÿ°¢Õß sandbox ·∑π
+				//‡∏ô‡∏≥‡∏ô‡∏¥‡∏û‡∏à‡∏ô‡πå‡πÉ‡∏´‡∏°‡πà‡πÑ‡∏õ‡∏ï‡∏±‡πâ‡∏á‡πÄ‡∏õ‡πá‡∏ô‡∏•‡∏π‡∏Å‡∏Ç‡∏≠‡∏á sandbox ‡πÅ‡∏ó‡∏ô
 				$this->sandbox->hole->fill($exp);
 			}
 			
 			if($oper->affix === I\OPER_INFIX)
 			{
-				//∂È“π‘æ®πÏ„À¡Ë‡ªÁπ infix operator „ÀÈ™’È available hole ‰ª¬—ß™ËÕß«Ë“ß∑“ß¥È“π¢«“¢Õß operator
+				//‡∏ñ‡πâ‡∏≤‡∏ô‡∏¥‡∏û‡∏à‡∏ô‡πå‡πÉ‡∏´‡∏°‡πà‡πÄ‡∏õ‡πá‡∏ô infix operator ‡πÉ‡∏´‡πâ‡∏ä‡∏µ‡πâ available hole ‡πÑ‡∏õ‡∏¢‡∏±‡∏á‡∏ä‡πà‡∏≠‡∏á‡∏ß‡πà‡∏≤‡∏á‡∏ó‡∏≤‡∏á‡∏î‡πâ‡∏≤‡∏ô‡∏Ç‡∏ß‡∏≤‡∏Ç‡∏≠‡∏á operator
 				$this->available_hole = $exp->right;
 			}
 		}
@@ -256,7 +256,7 @@ class ExpressionBuilder
 		return 0;
 	}
 	/**
-	 * ‡æ‘Ë¡ operator ∑’Ë°”≈—ß√Õ°“√‡æ‘Ë¡
+	 * ‡πÄ‡∏û‡∏¥‡πà‡∏° operator ‡∏ó‡∏µ‡πà‡∏Å‡∏≥‡∏•‡∏±‡∏á‡∏£‡∏≠‡∏Å‡∏≤‡∏£‡πÄ‡∏û‡∏¥‡πà‡∏°
 	 */
 	public function flush()
 	{
@@ -268,7 +268,7 @@ class ExpressionBuilder
 		}
 	}
 	/**
-	 * °≈—∫‰ª∑’Ë ∂“π–‡√‘Ë¡µÈπ
+	 * ‡∏Å‡∏•‡∏±‡∏ö‡πÑ‡∏õ‡∏ó‡∏µ‡πà‡∏™‡∏ñ‡∏≤‡∏ô‡∏∞‡πÄ‡∏£‡∏¥‡πà‡∏°‡∏ï‡πâ‡∏ô
 	 */
 	public function reset()
 	{
@@ -443,7 +443,7 @@ const STRESC_MODE_NONE = 0;
 const STRESC_MODE_HEX = 1;
 const STRESC_MODE_OCT = 2;
 /**
- * §≈“ π’È®–‡ªÁπµ—«π”∑“ß„π°“√ escape string
+ * ‡∏Ñ‡∏•‡∏≤‡∏™‡∏ô‡∏µ‡πâ‡∏à‡∏∞‡πÄ‡∏õ‡πá‡∏ô‡∏ï‡∏±‡∏ß‡∏ô‡∏≥‡∏ó‡∏≤‡∏á‡πÉ‡∏ô‡∏Å‡∏≤‡∏£ escape string
  * @author acer-pc
  *
  */
@@ -464,10 +464,10 @@ class StringEscapingGuide
 	const oct_pattern = "/^[0-7]$/";
 
 	/**
-	 * ªÈÕπµ—«Õ—°…√
-	 * @param string $current_char µ—«Õ—°…√ª—®®ÿ∫—π
-	 * @param string $next_char µ—«Õ—°…√∂—¥‰ª
-	 * @return §◊π§Ë“ false ‡¡◊ËÕ¬—ß‰¡Ë “¡“√∂ escape ‰¥È µÈÕß°“√µ—«Õ—°…√∂—¥‰ª, §◊π§Ë“ string µ—«Õ—°…√ À“° escape  ”‡√Á®·≈È«
+	 * ‡∏õ‡πâ‡∏≠‡∏ô‡∏ï‡∏±‡∏ß‡∏≠‡∏±‡∏Å‡∏©‡∏£
+	 * @param string $current_char ‡∏ï‡∏±‡∏ß‡∏≠‡∏±‡∏Å‡∏©‡∏£‡∏õ‡∏±‡∏à‡∏à‡∏∏‡∏ö‡∏±‡∏ô
+	 * @param string $next_char ‡∏ï‡∏±‡∏ß‡∏≠‡∏±‡∏Å‡∏©‡∏£‡∏ñ‡∏±‡∏î‡πÑ‡∏õ
+	 * @return ‡∏Ñ‡∏∑‡∏ô‡∏Ñ‡πà‡∏≤ false ‡πÄ‡∏°‡∏∑‡πà‡∏≠‡∏¢‡∏±‡∏á‡πÑ‡∏°‡πà‡∏™‡∏≤‡∏°‡∏≤‡∏£‡∏ñ escape ‡πÑ‡∏î‡πâ ‡∏ï‡πâ‡∏≠‡∏á‡∏Å‡∏≤‡∏£‡∏ï‡∏±‡∏ß‡∏≠‡∏±‡∏Å‡∏©‡∏£‡∏ñ‡∏±‡∏î‡πÑ‡∏õ, ‡∏Ñ‡∏∑‡∏ô‡∏Ñ‡πà‡∏≤ string ‡∏ï‡∏±‡∏ß‡∏≠‡∏±‡∏Å‡∏©‡∏£ ‡∏´‡∏≤‡∏Å escape ‡∏™‡∏≥‡πÄ‡∏£‡πá‡∏à‡πÅ‡∏•‡πâ‡∏ß
 	 */
 	public function feed($current_char, $next_char)
 	{

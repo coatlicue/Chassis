@@ -12,30 +12,30 @@ define('STATE_POST_INTERMEDIATE',2);
 class State
 {
 	/**
-	 * �� callable ����Ѻ�ӧҹ �¨��Ѻ����������ѧ���
-	 * 1. Transition ���Ѻ Transition ����繵�������ѧ State ���
-     * 2. Expectation_Result ���Ѻ�š�äҴ�����ѭ�ѡɳ� ��Сͺ���¿�Ŵ� succeed(�к���ҤҴ����������������) ��� symbol(�ѭ�ѡɳ���Ѻ�����)
-     * �. ����ö����价ӧҹ�ѧ state ����������ҧ�ͺਡ�� transition ŧ㹿�Ŵ� next transition ��С�˹����·ҧ ��� message
-     * �. ����ö�ӧҹ�Ѻ scanner ��੾�� suicide ��д֧����ѡ�� ��ҹ��
+	 * เก็บ callable สำหรับทำงาน โดยจะรับพารามิเตอร์ดังนี้
+	 * 1. Transition จะรับ Transition ที่เป็นตัวส่งมายัง State นี้
+     * 2. Expectation_Result จะรับผลการคาดหมายสัญลักษณ์ ประกอบด้วยฟีลด์ succeed(ระบุว่าคาดหมายสำเร็จหรือไม่) และ symbol(สัญลักษณ์ที่จับไว้ได้)
+     * ก. สามารถย้ายไปทำงานยัง state อื่นได้โดยสร้างออบเจกต์ transition ลงในฟิลด์ next transition และกำหนดปลายทาง และ message
+     * ข. สามารถทำงานกับ scanner ได้เฉพาะ suicide และดึงตัวอักษร เท่านั้น
 	 * @var callable
 	 */
 	public $operation;
 	/**
-	 * expectation tree ����Ѻ�Ҵ�����ѭ�ѡɳ��͹���������� state ���
+	 * expectation tree สำหรับคาดหมายสัญลักษณ์ก่อนที่จะเข้าสู่ state นี้
 	 * @var ExpectationTreeNode
 	 */
 	public $expectation_tree;
 	/**
-	 * ��˹� transition ��������ѧ state �Ѵ� (��˹�����ǹ�ͧ operation ��ҹ��)
+	 * กำหนด transition ที่จะส่งไปยัง state ถัดไป (กำหนดโดยส่วนของ operation เท่านั้น)
 	 * @var Transition
 	 */
 	public $next_transition;
 	/**
-	 * �к���� state ����� intermediate state (state ���зӧҹ�á state ���� ��͹��� scanner ������͹仢�ҧ˹��)
-	 * �դ�Ҵѧ���
-	 * STATE_PRE_INTERMEDIATE : �зӧҹ��ѧ�ҡ scanner ����͹仢�ҧ˹�� ��ѧ�ҡ��� state ����� intermediate ��Դ���ӧҹ���� �����¡ state �Ѵ仢���ҷӧҹ�ѹ��
-	 * STATE_POST_INTERMEDIATE : state ��Դ���зӧҹ�ѹ������� state ����� transition ���ѧ state ��� ������ͧ����� scanner ����͹���仢�ҧ˹��
-	 * �ҡ����駤���� intermediate state ����к��� 0
+	 * ระบุว่า state นี้เป็น intermediate state (state ที่จะทำงานแทรก state อื่นๆ ก่อนที่ scanner จะเคลื่อนไปข้างหน้า)
+	 * มีค่าดังนี้
+	 * STATE_PRE_INTERMEDIATE : จะทำงานหลังจาก scanner เคลื่อนไปข้างหน้า หลังจากที่ state ที่เป็น intermediate ชนิดนี้ทำงานเสร็จ จะเรียก state ถัดไปขึ้นมาทำงานทันที
+	 * STATE_POST_INTERMEDIATE : state ชนิดนี้จะทำงานทันทีเมื่อ state อื่นส่ง transition มายัง state นี้ โดยไม่ต้องรอให้ scanner เคลื่อนที่ไปข้างหน้า
+	 * หากไม่ตั้งค่าเป็น intermediate state ให้ระบุเป็น 0
 	 * @var unknown
 	 */
 	public $intermediate_mode = 0;
@@ -44,30 +44,30 @@ class State
 class Transition
 {
 	/**
-	 * State �鹷ҧ
+	 * State ต้นทาง
 	 * @var State
 	 */
 	public $source;
 	/**
-	 * State ���·ҧ
+	 * State ปลายทาง
 	 * @var State
 	 */
 	public $destination;
 	/**
-	 * �����ŷ��������� state ���·ҧ
+	 * ข้อมูลที่จะส่งไปให้ state ปลายทาง
 	 * @var mixed
 	 */
 	public $data;
 	/**
-	 * �к���� transition ��������ѧ state �繤����á�������
+	 * ระบุว่า transition นี้ส่งมายัง state เป็นครั้งแรกหรือไม่
 	 * @var bool
 	 */
 	public $first;
 	
 	/**
 	 * 
-	 * @param State $destination state ���·ҧ
-	 * @param mixed $data �����ŷ��������� state ���·ҧ
+	 * @param State $destination state ปลายทาง
+	 * @param mixed $data ข้อมูลที่จะส่งไปให้ state ปลายทาง
 	 */
 	public function __construct($destination, $data = null)
 	{
@@ -79,17 +79,17 @@ class Transition
 abstract class StateScanner extends Scanner
 {
 	/**
-	 * state �������
+	 * state เริ่มต้น
 	 * @var State
 	 */
 	protected $initial_state;
 	/**
-	 * transition ���������� state ��ͺ��÷ӧҹ����
+	 * transition ที่จะส่งไปให้ state ในรอบการทำงานต่อไป
 	 * @var Transition
 	 */
 	protected $next_transition;
 	/**
-	 * �к���Ҩ����������ӧҹ��͹��������͹�����ѧ����ѡ�õ���á�ͧ string �������
+	 * ระบุว่าจะให้เริ่มทำงานก่อนที่จะเคลื่อนที่ไปยังตัวอักษรตัวแรกของ string หรือไม่
 	 * @var bool
 	 */
 	
@@ -116,7 +116,7 @@ abstract class StateScanner extends Scanner
 				$state->next_transition = null;
 				call_user_func($state->operation, $trans, $exp_res);
 				
-				//��ѧ�ҡ state �ӧҹ����
+				//หลังจาก state ทำงานเสร็จ
 				if($state->next_transition !== null)
 				{
 					$state->next_transition->source = $state;
@@ -124,7 +124,7 @@ abstract class StateScanner extends Scanner
 					$this->next_transition = $state->next_transition;
 					$this->expecter->expectation_tree = $this->next_transition->destination->expectation_tree;
 				
-					//��� state ����� pre-intermediate ���� state �Ѵ��� post intermediate ������¡ state �Ѵ仢���ҷӧҹ�ѹ��
+					//ถ้า state นี้เป็น pre-intermediate หรือ state ถัดไปเป็น post intermediate ให้เรียก state ถัดไปขึ้นมาทำงานทันที
 					if($this->get_next_state()->intermediate_mode === STATE_POST_INTERMEDIATE
 							|| $state->intermediate_mode === STATE_PRE_INTERMEDIATE)
 					{
@@ -139,7 +139,7 @@ abstract class StateScanner extends Scanner
 		}
 	}
 	/**
-	 * ���¡��ʶҹжѴ价��ж١���¡��
+	 * เรียกดูสถานะถัดไปที่จะถูกเรียกใช้
 	 * @return \Chassis\Parser\State
 	 */
 	public function get_next_state()

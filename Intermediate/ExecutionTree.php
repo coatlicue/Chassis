@@ -8,32 +8,32 @@ const EVALNODE_NO_HTML_ESCAPE = 0b1;
 include_once __DIR__."/Context.php";
 
 /**
- * ���ʹ�����繵��᷹�ͧ��觵�ҧ� ����ҡ�����ŵ ���� �硾���� �Ծ��������ͧ���� {...} ��Т�ͤ���
+ * คลาสนี้ใช้เป็นตัวแทนของสิ่งต่างๆ ที่ปรากฎในเทมเพลต ได้แก่ แท็กพิเศษ นิพจน์ในเครื่องหมาย {...} และข้อความ
  * @author acer-pc
  *
  */
 abstract class ExecutionNode
 {
 	/**
-	 * ⹴�дѺ����٧���仨ҡ⹴���
+	 * โนดระดับที่สูงขึ้นไปจากโนดนี้
 	 * @var ExecutionNode
 	 */
 	public $parent;
 	/**
-	 * ������⹴���ӧҹ
+	 * สั่งให้โนดนี้ทำงาน
 	 * @return string
 	 */
 	public abstract function execute();
 }
 /**
- * ���ʹ���繵��᷹�ͧ��ͤ��� �������� language construct
+ * คลาสนี้เป็นตัวแทนของข้อความ ที่ไม่ใช่ language construct
  * @author acer-pc
  *
  */
 class TextNode extends ExecutionNode
 {
 	/**
-	 * ��ͤ����ͧ⹴���
+	 * ข้อความของโนดนี้
 	 * @var string
 	 */
 	public $text;
@@ -46,7 +46,7 @@ class TextNode extends ExecutionNode
 		return $this->text;
 	}
 	/**
-	 * ��¹��ͤ�������ŧ�⹴���
+	 * เขียนข้อความเพิ่มลงในโนดนี้
 	 * @param string $str
 	 */
 	public function write($str)
@@ -55,20 +55,20 @@ class TextNode extends ExecutionNode
 	}
 }
 /**
- * ���ʹ���繵��᷹�ͧ⹴ {...}
+ * คลาสนี้เป็นตัวแทนของโนด {...}
  * @author acer-pc
  *
  */
 class EvaluationNode extends ExecutionNode
 {
 	/**
-	 * �纹Ծ���ͧ⹴���
+	 * เก็บนิพจน์ของโนดนี้
 	 * @var Expression
 	 */
 	public $expression;
 	/**
-	 * modifier �ͧ⹴��� ����
-	 * EVALNODE_NO_HTML_ESCAPE : �������ա����������ѡ��о���ɢͧ HTML
+	 * modifier ของโนดนี้ ได้แก่
+	 * EVALNODE_NO_HTML_ESCAPE : ไม่ให้มีการเข้ารหัสอักขระพิเศษของ HTML
 	 * @var int
 	 */
 	public $modifier;
@@ -87,7 +87,7 @@ class EvaluationNode extends ExecutionNode
 	}
 	/**
 	 *
-	 * @param Expression $exp �Ծ����Ш�⹴���
+	 * @param Expression $exp นิพจน์ประจำโนดนี้
 	 */
 	public function __construct($exp, $modifier)
 	{
@@ -96,31 +96,31 @@ class EvaluationNode extends ExecutionNode
 	}
 }
 /**
- * �繵��᷹�ͧ��(���͡) ����� �� {@if} {@for}
+ * เป็นตัวแทนของแท็ก(บล็อก) พิเศษ เช่น {@if} {@for}
  * @author acer-pc
  *
  */
 class BlockNode extends ExecutionNode
 {
 	/**
-	 * ���ͺਡ��ͧ����觻�ШӺ��͡���
-	 * �����˵� : ��Ŵ��� ����ö��˹������ BLOCKNODE_ROOT �� �ҡ�ͺਡ������⹴�ҡ
+	 * เก็บออบเจกต์ของคำสั่งประจำบล็อกนี้
+	 * หมายเหตุ : ฟิลด์นี้ สามารถกำหนดค่าเป็น BLOCKNODE_ROOT ได้ หากออบเจกต์นั้นเป็นโนดราก
 	 * @var BlockInstruction
 	 */
 	public $block_instruction;
 	/**
-	 * ����¡�� header �ͧ���͡�����ٻ key => value
+	 * เก็บรายการ header ของบล็อกนี้ในรูป key => value
 	 * @var array
 	 */
 	public $headers = [];
 	/**
-	 * ��⹴����� �ͧ���͡���
+	 * เก็บโนดย่อยๆ ของบล็อกนี้
 	 * @var ExecutionNodeList
 	*/
 	public $children;
 	/**
 	 *
-	 * @param BlockInstruction $instruction ����觻�ШӺ��͡���
+	 * @param BlockInstruction $instruction คำสั่งประจำบล็อกนี้
 	 */
 	public function __construct($instruction)
 	{
@@ -147,7 +147,7 @@ class BlockNode extends ExecutionNode
 		}
 	}
 	/**
-	 * �����δ����
+	 * เพิ่มเฮดเดอร์
 	 * @param mixed $key
 	 * @param mixed $value
 	 */
@@ -156,7 +156,7 @@ class BlockNode extends ExecutionNode
 		$this->headers[$key] = $value;
 	}
 	/**
-	 * ����⹴����
+	 * เพิ่มโนดย่อย
 	 * @param ExecutionNode $node
 	 */
 	public function add_child($node)
@@ -166,19 +166,19 @@ class BlockNode extends ExecutionNode
 	}
 }
 /**
- * ����¡�âͧ execution node
+ * เป็นรายการของ execution node
  * @author acer-pc
  *
  */
 class ExecutionNodeList
 {
 	/**
-	 * �� execution node
+	 * เก็บ execution node
 	 * @var array
 	 */
 	public $list = [];
 	/**
-	 * ������⹴���¡�÷ӧҹ�ء��� ��Ф׹��Ҽš�÷ӧҹ
+	 * สั่งให้โนดในรายการทำงานทุกตัว และคืนค่าผลการทำงาน
 	 * @return string
 	*/
 	public function execute_all()
@@ -191,7 +191,7 @@ class ExecutionNodeList
 		return $ret;
 	}
 	/**
-	 * ����⹴ŧ���¡��
+	 * เพิ่มโนดลงในรายการ
 	 * @param ExecutionNode $node
 	 */
 	public function add($node)

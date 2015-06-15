@@ -89,7 +89,7 @@ class ExclusiveExpressionBuilder extends ExpressionBuilder
 {
 	public function add_expression($exp)
 	{
-		//∂È“ closure ∂Ÿ°‡æ‘Ë¡¡“ ‚¥¬∑’Ë‰¡Ë¡’™ËÕß«Ë“ß ”À√—∫π‘æ®πÏ · ¥ß«Ë“‡ªÁπ°“√‡√’¬°ø—ß°Ï™—π
+		//‡∏ñ‡πâ‡∏≤ closure ‡∏ñ‡∏π‡∏Å‡πÄ‡∏û‡∏¥‡πà‡∏°‡∏°‡∏≤ ‡πÇ‡∏î‡∏¢‡∏ó‡∏µ‡πà‡πÑ‡∏°‡πà‡∏°‡∏µ‡∏ä‡πà‡∏≠‡∏á‡∏ß‡πà‡∏≤‡∏á‡∏™‡∏≥‡∏´‡∏£‡∏±‡∏ö‡∏ô‡∏¥‡∏û‡∏à‡∏ô‡πå ‡πÅ‡∏™‡∏î‡∏á‡∏ß‡πà‡∏≤‡πÄ‡∏õ‡πá‡∏ô‡∏Å‡∏≤‡∏£‡πÄ‡∏£‡∏µ‡∏¢‡∏Å‡∏ü‡∏±‡∏á‡∏Å‡πå‡∏ä‡∏±‡∏ô
 		if($this->available_hole === null && $exp instanceof Closure)
 		{
 			if(($r = parent::add_operator(OperList::$list['FUNC_CALL'])) !== 0) return $r;
@@ -125,7 +125,7 @@ class ExpressionScanner extends StateScanner implements IBlankScanner
 
 		//-----declaring central variable for every state.-----
 		$tmp_str = "";
-		$sub_exp_scanner = null; //µ—« ·°ππ‘æ®πÏ¬ËÕ¬ **‡¡◊ËÕ„™Èß“π‡ √Á®·≈È«‰¡ËµÈÕß reset ·≈– initialize**
+		$sub_exp_scanner = null; //‡∏ï‡∏±‡∏ß‡∏™‡πÅ‡∏Å‡∏ô‡∏ô‡∏¥‡∏û‡∏à‡∏ô‡πå‡∏¢‡πà‡∏≠‡∏¢ **‡πÄ‡∏°‡∏∑‡πà‡∏≠‡πÉ‡∏ä‡πâ‡∏á‡∏≤‡∏ô‡πÄ‡∏™‡∏£‡πá‡∏à‡πÅ‡∏•‡πâ‡∏ß‡πÑ‡∏°‡πà‡∏ï‡πâ‡∏≠‡∏á reset ‡πÅ‡∏•‡∏∞ initialize**
 		$use_sub_exp_scanner = function() use (&$sub_exp_scanner)
 		{
 			if($sub_exp_scanner === null)
@@ -171,7 +171,7 @@ class ExpressionScanner extends StateScanner implements IBlankScanner
 				{
 					$this->ground->next_transition = new Transition($this->closure_read);
 				}
-				elseif($exp_sym === "{") //‡ªÁπ™◊ËÕµ—«·ª√∑’Ë∂Ÿ°√–∫ÿ‚¥¬ expression (‡™Ëπ var1 ¡’§Ë“‡∑Ë“°—∫ {"var1"})
+				elseif($exp_sym === "{") //‡πÄ‡∏õ‡πá‡∏ô‡∏ä‡∏∑‡πà‡∏≠‡∏ï‡∏±‡∏ß‡πÅ‡∏õ‡∏£‡∏ó‡∏µ‡πà‡∏ñ‡∏π‡∏Å‡∏£‡∏∞‡∏ö‡∏∏‡πÇ‡∏î‡∏¢ expression (‡πÄ‡∏ä‡πà‡∏ô var1 ‡∏°‡∏µ‡∏Ñ‡πà‡∏≤‡πÄ‡∏ó‡πà‡∏≤‡∏Å‡∏±‡∏ö {"var1"})
 				{
 					$this->ground->next_transition = new Transition($this->id_exp_read);
 				}
@@ -274,11 +274,11 @@ class ExpressionScanner extends StateScanner implements IBlankScanner
 
 		//----- closure read state -----
 		$closure = null;
-		//‡Õ“‰«È‡æ‘Ë¡ exp „À¡Ë∑’ËÕË“π‰¥È≈ß„π closure
+		//‡πÄ‡∏≠‡∏≤‡πÑ‡∏ß‡πâ‡πÄ‡∏û‡∏¥‡πà‡∏° exp ‡πÉ‡∏´‡∏°‡πà‡∏ó‡∏µ‡πà‡∏≠‡πà‡∏≤‡∏ô‡πÑ‡∏î‡πâ‡∏•‡∏á‡πÉ‡∏ô closure
 		$add_exp = function() use (&$sub_exp_scanner, &$closure)
 		{
 			$sub_exp_scanner->finalize();
-			//∂È“À“° Scanner µ—«≈Ÿ°‡°‘¥§«“¡º‘¥æ≈“¥¢÷Èπ °Á„ÀÈÀ¬ÿ¥°“√∑”ß“π
+			//‡∏ñ‡πâ‡∏≤‡∏´‡∏≤‡∏Å Scanner ‡∏ï‡∏±‡∏ß‡∏•‡∏π‡∏Å‡πÄ‡∏Å‡∏¥‡∏î‡∏Ñ‡∏ß‡∏≤‡∏°‡∏ú‡∏¥‡∏î‡∏û‡∏•‡∏≤‡∏î‡∏Ç‡∏∂‡πâ‡∏ô ‡∏Å‡πá‡πÉ‡∏´‡πâ‡∏´‡∏¢‡∏∏‡∏î‡∏Å‡∏≤‡∏£‡∏ó‡∏≥‡∏á‡∏≤‡∏ô
 			if($sub_exp_scanner->state === P\SC_STATE_DEAD)
 			{
 				$this->suicide($sub_exp_scanner->error);
@@ -323,7 +323,7 @@ class ExpressionScanner extends StateScanner implements IBlankScanner
 				else
 				{
 					$sub_exp_scanner->advance_here();
-					//∂È“À“° Scanner µ—«≈Ÿ°‡°‘¥§«“¡º‘¥æ≈“¥¢÷Èπ °Á„ÀÈÀ¬ÿ¥°“√∑”ß“π
+					//‡∏ñ‡πâ‡∏≤‡∏´‡∏≤‡∏Å Scanner ‡∏ï‡∏±‡∏ß‡∏•‡∏π‡∏Å‡πÄ‡∏Å‡∏¥‡∏î‡∏Ñ‡∏ß‡∏≤‡∏°‡∏ú‡∏¥‡∏î‡∏û‡∏•‡∏≤‡∏î‡∏Ç‡∏∂‡πâ‡∏ô ‡∏Å‡πá‡πÉ‡∏´‡πâ‡∏´‡∏¢‡∏∏‡∏î‡∏Å‡∏≤‡∏£‡∏ó‡∏≥‡∏á‡∏≤‡∏ô
 					if($sub_exp_scanner->state === P\SC_STATE_DEAD)
 					{
 						$this->suicide($sub_exp_scanner->error);
@@ -333,7 +333,7 @@ class ExpressionScanner extends StateScanner implements IBlankScanner
 			else
 			{
 				$sub_exp_scanner->finalize();
-				//∂È“À“° Scanner µ—«≈Ÿ°‡°‘¥§«“¡º‘¥æ≈“¥¢÷Èπ °Á„ÀÈÀ¬ÿ¥°“√∑”ß“π
+				//‡∏ñ‡πâ‡∏≤‡∏´‡∏≤‡∏Å Scanner ‡∏ï‡∏±‡∏ß‡∏•‡∏π‡∏Å‡πÄ‡∏Å‡∏¥‡∏î‡∏Ñ‡∏ß‡∏≤‡∏°‡∏ú‡∏¥‡∏î‡∏û‡∏•‡∏≤‡∏î‡∏Ç‡∏∂‡πâ‡∏ô ‡∏Å‡πá‡πÉ‡∏´‡πâ‡∏´‡∏¢‡∏∏‡∏î‡∏Å‡∏≤‡∏£‡∏ó‡∏≥‡∏á‡∏≤‡∏ô
 				if($sub_exp_scanner->state === P\SC_STATE_DEAD)
 				{
 					$this->suicide($sub_exp_scanner->error);
@@ -357,16 +357,16 @@ class ExpressionScanner extends StateScanner implements IBlankScanner
 				}
 				elseif($this->get_current_char() === "}"
 						&& $sub_exp_scanner->in_ground_state())
-				{ //‡¡◊ËÕæ∫µ—«Õ—°…√ } „ÀÈÀ¬ÿ¥°“√ÕË“ππ‘æ®πÏ ·≈–‡æ‘Ë¡ VariableExpression ≈ß„π expressionBuilder
+				{ //‡πÄ‡∏°‡∏∑‡πà‡∏≠‡∏û‡∏ö‡∏ï‡∏±‡∏ß‡∏≠‡∏±‡∏Å‡∏©‡∏£ } ‡πÉ‡∏´‡πâ‡∏´‡∏¢‡∏∏‡∏î‡∏Å‡∏≤‡∏£‡∏≠‡πà‡∏≤‡∏ô‡∏ô‡∏¥‡∏û‡∏à‡∏ô‡πå ‡πÅ‡∏•‡∏∞‡πÄ‡∏û‡∏¥‡πà‡∏° VariableExpression ‡∏•‡∏á‡πÉ‡∏ô expressionBuilder
 					$sub_exp_scanner->finalize();
 					$this->_add_expression(
 							new VariableExpression($sub_exp_scanner->summarize()));
 					$this->id_exp_read->next_transition = new Transition($this->ground);
 				}
 				else
-				{ //ÕË“πµËÕ‰ª
+				{ //‡∏≠‡πà‡∏≤‡∏ô‡∏ï‡πà‡∏≠‡πÑ‡∏õ
 					$sub_exp_scanner->advance_here();
-					//∂È“À“° Scanner µ—«≈Ÿ°‡°‘¥§«“¡º‘¥æ≈“¥¢÷Èπ °Á„ÀÈÀ¬ÿ¥°“√∑”ß“π
+					//‡∏ñ‡πâ‡∏≤‡∏´‡∏≤‡∏Å Scanner ‡∏ï‡∏±‡∏ß‡∏•‡∏π‡∏Å‡πÄ‡∏Å‡∏¥‡∏î‡∏Ñ‡∏ß‡∏≤‡∏°‡∏ú‡∏¥‡∏î‡∏û‡∏•‡∏≤‡∏î‡∏Ç‡∏∂‡πâ‡∏ô ‡∏Å‡πá‡πÉ‡∏´‡πâ‡∏´‡∏¢‡∏∏‡∏î‡∏Å‡∏≤‡∏£‡∏ó‡∏≥‡∏á‡∏≤‡∏ô
 					if($sub_exp_scanner->state === P\SC_STATE_DEAD)
 					{
 						$this->suicide($sub_exp_scanner->error);
@@ -388,7 +388,7 @@ class ExpressionScanner extends StateScanner implements IBlankScanner
 	}
 
 	/**
-	 * µ√«® Õ∫«Ë“Õ¬ŸË„π ground state À√◊Õ‰¡Ë
+	 * ‡∏ï‡∏£‡∏ß‡∏à‡∏™‡∏≠‡∏ö‡∏ß‡πà‡∏≤‡∏≠‡∏¢‡∏π‡πà‡πÉ‡∏ô ground state ‡∏´‡∏£‡∏∑‡∏≠‡πÑ‡∏°‡πà
 	 * @return boolean
 	 */
 	public function in_ground_state()
@@ -405,7 +405,7 @@ class ExpressionScanner extends StateScanner implements IBlankScanner
 		$this->exp_builder->reset();
 	}
 	/**
-	 * ·ª≈ß error ∑’Ë·®Èß¡“®“° ExpressionBuilder „ÀÈ‡ªÁπ error „π√Ÿª∑’Ë®–·®ÈßÕÕ°‰ªÀ“ºŸÈ„™È
+	 * ‡πÅ‡∏õ‡∏•‡∏á error ‡∏ó‡∏µ‡πà‡πÅ‡∏à‡πâ‡∏á‡∏°‡∏≤‡∏à‡∏≤‡∏Å ExpressionBuilder ‡πÉ‡∏´‡πâ‡πÄ‡∏õ‡πá‡∏ô error ‡πÉ‡∏ô‡∏£‡∏π‡∏õ‡∏ó‡∏µ‡πà‡∏à‡∏∞‡πÅ‡∏à‡πâ‡∏á‡∏≠‡∏≠‡∏Å‡πÑ‡∏õ‡∏´‡∏≤‡∏ú‡∏π‡πâ‡πÉ‡∏ä‡πâ
 	 * @param int $err
 	 */
 	private function _create_exp_builder_error($err)
@@ -422,7 +422,7 @@ class ExpressionScanner extends StateScanner implements IBlankScanner
 		return new Error($this, $err);
 	}
 	/**
-	 * ‡æ‘Ë¡π‘æ®πÏ≈ß„π ExpressionBuilder
+	 * ‡πÄ‡∏û‡∏¥‡πà‡∏°‡∏ô‡∏¥‡∏û‡∏à‡∏ô‡πå‡∏•‡∏á‡πÉ‡∏ô ExpressionBuilder
 	 * @param Expression $exp
 	 */
 	private function _add_expression($exp)
@@ -437,7 +437,7 @@ class ExpressionScanner extends StateScanner implements IBlankScanner
 		}
 	}
 	/**
-	 * ‡æ‘Ë¡µ—«¥”‡π‘π°“√≈ß‰ª∫π ExpressionBuilder
+	 * ‡πÄ‡∏û‡∏¥‡πà‡∏°‡∏ï‡∏±‡∏ß‡∏î‡∏≥‡πÄ‡∏ô‡∏¥‡∏ô‡∏Å‡∏≤‡∏£‡∏•‡∏á‡πÑ‡∏õ‡∏ö‡∏ô ExpressionBuilder
 	 * @param Operator $oper
 	 */
 	private function _add_operator($oper)

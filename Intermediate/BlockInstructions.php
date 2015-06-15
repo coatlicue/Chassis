@@ -7,37 +7,37 @@ include_once __DIR__."/../Parser/ExecutionParser.php";
 include_once __DIR__."/Context.php";
 
 /**
- * �红����Ţͧ����觻�ШӺ��͡ �� if for
+ * เก็บข้อมูลของคำสั่งประจำบล็อก เช่น if for
  * @author acer-pc
  *
  */
 abstract class BlockInstruction
 {
 	/**
-	 * �纪��ͧ͢����觹��
+	 * เก็บชื่อของคำสั่งนี้
 	 * @var string
 	 */
 	public $name;
 	/**
-	 * �纤�Ҥ���Ƿ���кؤ���觹����
+	 * เก็บค่าคงตัวที่ระบุคำสั่งนี้ได้
 	 * @var int
 	 */
 	public $id;
 	/**
-	 * �� keyword tree ����кض֧ keyword ��ҧ� ����Դ�ͧ���͡
-	 * �� {@for i from x to y step -2} => from, to ��� step ��� keyword
+	 * เก็บ keyword tree ที่ระบุถึง keyword ต่างๆ ในแท็กเปิดของบล็อก
+	 * เช่น {@for i from x to y step -2} => from, to และ step คือ keyword
 	 * @var KeywordNode
 	 */
 	public $keyword_tree;
 	/**
-	 * �к���� ���͡��� ����ͧ���硻Դ �����?
+	 * ระบุว่า บล็อกนี้ ไม่ต้องมีแท็กปิด ใช่ไหม?
 	 * @var boolean
 	 */
 	public $no_close = false;
 	/**
-	 * ��˹��ѧ��ѹ����Ѻ�ӧҹ
-	 * @param array $headers ��¡���δ����
-	 * @param ExecutionNodeList $children �١�
+	 * กำหนดฟังก์ชันสำหรับทำงาน
+	 * @param array $headers รายการเฮดเดอร์
+	 * @param ExecutionNodeList $children ลูกๆ
 	 */
 	public abstract function operation($headers, $children);
 }
@@ -66,7 +66,7 @@ class BlockInstruction_If extends BlockInstruction
 			return $children->execute_all();
 		}
 		else
-		{ //������� {@else} �Ѵ� �ѹ
+		{ //ส่งให้แท็ก {@else} ถัดไป รัน
 			Context::set_var(I\VAR_CHANNEL_RESERVED, "execute_else", true, true);
 			return "";
 		}
@@ -126,7 +126,7 @@ class BlockInstruction_For extends BlockInstruction
 
 	public function operation($headers, $children)
 	{
-		//TODO : ��Ǩ�ͺ������� ���������������Ѻ�դ���繵���Ţ�������
+		//TODO : ตรวจสอบด้วยว่า พารามิเตอร์ที่ได้รับมีค่าเป็นตัวเลขหรือไม่
 		$start = $headers['start']->calculate();
 		$end = $headers['end']->calculate();
 		$counter_name = $header['counter']->get_name();

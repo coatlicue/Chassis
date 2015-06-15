@@ -12,49 +12,49 @@ const EXP_STATE_SUCCEED = 2;
 class Expecter
 {
 	/**
-	 * initiation node �ͧ expectation tree ����ͧ��è�����Ǩ�Ѻ
+	 * initiation node ของ expectation tree ที่ต้องการจะให้ตรวจจับ
 	 * @var ExpectationTreeNode
 	 */
 	public $expectation_tree;
 	
 	/**
-	 * scanner �������Ңͧ
+	 * scanner ที่เป็นเจ้าของ
 	 * @var Scanner
 	 */
 	public $scanner;
 	
 	/**
-	 * ʵ�ԧ�����ѧ�Ѻ��
+	 * สตริงที่กำลังจับได้
 	 * @var string
 	 */
 	public $consumed_string;
 	/**
-	 * ����������ش���١�Դ�Ѻ string �����ҹ��
+	 * ข้อมูลล่าสุดที่ผูกติดกับ string ที่อ่านได้
 	 *  @var mixed
 	 */
 	public $last_tag;
 	
 	/**
-	 * ʶҹ� (���� EXP_STATE_FAILED, EXP_STATE_EXPECTING, EXP_STATE_SUCCEED)
+	 * สถานะ (ได้แก่ EXP_STATE_FAILED, EXP_STATE_EXPECTING, EXP_STATE_SUCCEED)
 	 * @var int
 	 */
 	public $state;
 	
 	/**
-	 * expectation tree �����ѧ�١�Ԩ�ó�����
+	 * expectation tree ที่กำลังถูกพิจารณาอยู่
 	 * @var ExpectationTreeNode
 	 */
 	private $current_expectation_tree;
 	
 	/**
-	 * @param Scanner $scanner scanner �������Ңͧ
+	 * @param Scanner $scanner scanner ที่เป็นเจ้าของ
 	 */
 	public function __construct($scanner)
 	{
 		$this->scanner = $scanner;
 	}
 	/**
-	 * ����������͹仢�ҧ˹��
+	 * สั่งให้เคลื่อนไปข้างหน้า
 	 */
 	public function advance()
 	{
@@ -71,11 +71,11 @@ class Expecter
 			return;
 		}
 			
-		//��Ҿ�����ѡ�� � ���˹觻Ѩ�غѹ �� node ˹��� �ͧ expectation tree �����͡⹴��鹢���ҷӧҹ�����
+		//ถ้าพบตัวอักษร ณ ตำแหน่งปัจจุบัน เป็น node หนึ่งๆ ของ expectation tree ก็เลือกโนดนั้นขึ้นมาทำงานได้เลย
 		if(($child = $this->current_expectation_tree->retrieve(ETN_TYPE_CHARACTER, $c))
 				!== false)
 		{
-			//��Ǩ�ͺ⹴����ŧ��ա
+			//ตรวจสอบโนดย่อยลงไปอีก
 			if(count($child->children) === 1 && $child->children[0]->type === ETN_TYPE_TERMINATION)
 			{
 				$this->report(EXP_STATE_SUCCEED, $child->children[0]->tag);
@@ -103,8 +103,8 @@ class Expecter
 		}
 	}
 	/**
-	 * �����騺��äҴ����
-	 * �ҡʶҹТͧ Expecter �ѧ���� expecting ��������¡�����ʹ������� ʶҹШ�����¹�� failed �ѹ��
+	 * สั่งให้จบการคาดหมาย
+	 * หากสถานะของ Expecter ยังคงเป็น expecting เมื่อเรียกใช้เมธอดนี้แล้ว สถานะจะเปลี่ยนเป็น failed ทันที
 	 */
 	public function finalize()
 	{
@@ -113,19 +113,19 @@ class Expecter
 	}
 	
 	/**
-	 * ���ʶҹ� �����§ҹʵ�ԧ����Ǩ�Ѻ�����
+	 * ตั้งสถานะ และรายงานสตริงที่ตรวจจับไว้ได้
 	 * @param int $state
 	 */
 	private function report($state, $tag = null)
 	{
 		if($state !== EXP_STATE_EXPECTING)
 		{
-			//��Ѻ价��⹴�������
+			//กลับไปที่โนดเริ่มต้น
 			$this->current_expectation_tree = $this->expectation_tree;
 		}
 		else
 		{
-			//��ѧ⹴����ѡ�öѴ�
+			//ไปยังโนดตัวอักษรถัดไป
 			$this->current_expectation_tree = 
 				$this->current_expectation_tree->retrieve
 					(ETN_TYPE_CHARACTER, $this->scanner->get_current_char());
@@ -147,19 +147,19 @@ class Expecter
 		$this->expectation_tree = ExpectationTreeNode::create(["if", "ifelse", "ixl"]);
 		
 		//----test #1----
-		//��˹�������Ǵ������:
+		//กำหนดสภาวะแวดล้อมเป็น:
 		//current_exp_tree = i -> [f, x]
 		//current_char = x
 		//consumed_string = i
 		//state = expecting
 		$this->current_expectation_tree = $this->expectation_tree->retrieve(ETN_TYPE_CHARACTER, "i");
-		//��˹�����ѡ�ûѨ�غѹ�� x
+		//กำหนดตัวอักษรปัจจุบันเป็น x
 		$this->scanner->current_char = "x";
 		$this->consumed_string = "i";
 		$this->state = EXP_STATE_EXPECTING;
-		//��� report ����ʶҹ� expecting
+		//และ report ด้วยสถานะ expecting
 		$this->report(EXP_STATE_EXPECTING);
-		//��Ҷ١��ͧ ����:
+		//ถ้าถูกต้อง จะได้:
 		//expectation tree = x -> [l]
 		//consumed_string = ix;
 		//state = expecting
@@ -169,7 +169,7 @@ class Expecter
 		assert($this->state = EXP_STATE_EXPECTING, "#1 check state");
 		
 		//----test #2----
-		//��˹�������Ǵ������
+		//กำหนดสภาวะแวดล้อมเป็น
 		//current_exp_tree = x -> [l]
 		//current_char = l
 		//consumed_string = ix
@@ -178,9 +178,9 @@ class Expecter
 		$this->scanner->current_char = "l";
 		$this->consumed_string = "ix";
 		$this->state = EXP_STATE_EXPECTING;
-		//���Ƿӡ�� report
+		//แล้วทำการ report
 		$this->report(EXP_STATE_FAILED);
-		//��Ҷ١��ͧ �е�ͧ��
+		//ถ้าถูกต้อง จะต้องได้
 		//consumed_string = ixl
 		//current_exp_tree = root
 		//state = failed
@@ -190,7 +190,7 @@ class Expecter
 		assert($this->state === EXP_STATE_FAILED, "#2 check state");
 		
 		//----test #3----
-		//��˹�������Ǵ������
+		//กำหนดสภาวะแวดล้อมเป็น
 		//current_char = a
 		//consumed_string = ixl
 		//state = failed
@@ -199,9 +199,9 @@ class Expecter
 		$this->consumed_string = "ixl";
 		$this->state = EXP_STATE_FAILED;
 		$this->current_expectation_tree = null;
-		//���� report ����ʶҹ� succeed
+		//แล้ว report ด้วยสถานะ succeed
 		$this->report(EXP_STATE_SUCCEED);
-		//��Ҷ١��ͧ ����
+		//ถ้าถูกต้อง จะได้
 		//consumed_string = a
 		//current_exp_tree = root
 		//state = succeed
@@ -221,7 +221,7 @@ class Expecter
 			$exp_tree = $exp_tree->retrieve(ETN_TYPE_CHARACTER, $str[$i]);
 			
 			//----test #$i----
-			//��˹�
+			//กำหนด
 			//current_char = $str[$i]
 			//next_char = $str[$i + 1]
 			$this->scanner->current_char = $str[$i];
@@ -229,18 +229,18 @@ class Expecter
 				$this->scanner->next_char = $str[$i+1];
 			else
 				$this->scanner->next_char = "#";
-			//����������͹仢�ҧ˹��
+			//สั่งให้เคลื่อนไปข้างหน้า
 			$this->scanner->advance();
-			//�纤�� state ���
+			//เก็บค่า state ไว้
 			array_push($states, $this->state);
-			//�ҡʶҹ��� final state �����ش�ӧҹ
+			//หากสถานะเป็น final state ให้หยุดทำงาน
 			if($this->state === EXP_STATE_FAILED || $this->state === EXP_STATE_SUCCEED)
 				break;
-			//��ҷӧҹ�١��ͧ exp_tree �Ѩ�غѹ��ͧ�繢ͧ����ѡ�ûѨ�غѹ
+			//ถ้าทำงานถูกต้อง exp_tree ปัจจุบันต้องเป็นของตัวอักษรปัจจุบัน
 			assert($this->current_expectation_tree === $exp_tree, "#$i exp tree advanced.");
 		}
 		
-		//ǹ�ٻ��Ǩ�ͺʶҹз�������
+		//วนลูปตรวจสอบสถานะที่เก็บไว้
 		echo "states: ";
 		foreach($states as $s)
 		{
@@ -250,7 +250,7 @@ class Expecter
 	
 	public static function _test_expect_null()
 	{
-		//���ͺ��� ���������˹� exp tree ����� expecter ���� ʶҹТͧ expecter ���� failed ��ʹ�������
+		//ทดสอบว่า ถ้าไม่ได้กำหนด exp tree ให้แก่ expecter แล้ว สถานะของ expecter จะเป็น failed ตลอดหรือไม่
 		$e = new Expecter(new DummyScanner());
 		$e->expectation_tree = null;
 		$e->scanner->current_char = "a";
@@ -259,7 +259,7 @@ class Expecter
 		assert($e->state === EXP_STATE_FAILED, "test expecter on null tree");
 	}
 	
-	//���ͺ��õԴ tag 㹡�èѺ string �ͧ expecter
+	//ทดสอบการติด tag ในการจับ string ของ expecter
 	public static function _test_tag()
 	{
 		$driver = new ScannerDriver();

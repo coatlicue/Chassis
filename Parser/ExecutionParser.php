@@ -17,29 +17,29 @@ include_once __DIR__."/StateScanner.php";
 include_once __DIR__."/ExpressionParser.php";
 
 /**
- * เป็นตัวช่วยในการสร้าง execution tree
+ * เน€เธเนเธเธ•เธฑเธงเธเนเธงเธขเนเธเธเธฒเธฃเธชเธฃเนเธฒเธ execution tree
  * @author acer-pc
  *
  */
 class ExecutionTreeBuilder
 {
 	/**
-	 * บล็อกที่เป็นราก
+	 * เธเธฅเนเธญเธเธ—เธตเนเน€เธเนเธเธฃเธฒเธ
 	 * @var BlockNode
 	 */
 	private $root_block;
 	/**
-	 * บล็อกที่กำลังทำงานด้วย
+	 * เธเธฅเนเธญเธเธ—เธตเนเธเธณเธฅเธฑเธเธ—เธณเธเธฒเธเธ”เนเธงเธข
 	 * @var BlockNode
 	 */
 	public $current_block;
 	/**
-	 * text node ที่กำลังทำงานด้วย
+	 * text node เธ—เธตเนเธเธณเธฅเธฑเธเธ—เธณเธเธฒเธเธ”เนเธงเธข
 	 * @var TextNode
 	 */
 	private $current_text;
 	/**
-	 * context ที่กำลังใช้สร้าง execution tree
+	 * context เธ—เธตเนเธเธณเธฅเธฑเธเนเธเนเธชเธฃเนเธฒเธ execution tree
 	 * @var Context
 	 */
 	private $context;
@@ -50,7 +50,7 @@ class ExecutionTreeBuilder
 		$this->current_block = $this->root_block;
 	}
 	/**
-	 * เพิ่มข้อความ
+	 * เน€เธเธดเนเธกเธเนเธญเธเธงเธฒเธก
 	 * @param string $text
 	 */
 	public function add_text($text)
@@ -63,8 +63,8 @@ class ExecutionTreeBuilder
 		$this->current_text->write($text);
 	}
 	/**
-	 * เพิ่ม evaluation node
-	 * @param Expression $exp นิพจน์
+	 * เน€เธเธดเนเธก evaluation node
+	 * @param Expression $exp เธเธดเธเธเธเน
 	 * @param int $modifier modifier
 	 */
 	public function add_evaluation($exp, $modifier)
@@ -73,8 +73,8 @@ class ExecutionTreeBuilder
 		$this->current_block->add_child(new EvaluationNode($exp, $modifier));
 	}
 	/**
-	 * เพิ่ม block node ใหม่
-	 * @param BlockInstruction $instruction คำสั่งประจำ block node
+	 * เน€เธเธดเนเธก block node เนเธซเธกเน
+	 * @param BlockInstruction $instruction เธเธณเธชเธฑเนเธเธเธฃเธฐเธเธณ block node
 	 */
 	public function open_block($instruction)
 	{
@@ -85,7 +85,7 @@ class ExecutionTreeBuilder
 		if(!$instruction->no_close) $this->current_block = $block;
 	}
 	/**
-	 * ปิด block node และย้อนกลับไปทำงานกับโนดในระดับบน
+	 * เธเธดเธ” block node เนเธฅเธฐเธขเนเธญเธเธเธฅเธฑเธเนเธเธ—เธณเธเธฒเธเธเธฑเธเนเธเธ”เนเธเธฃเธฐเธ”เธฑเธเธเธ
 	 * @param string $instruction_name
 	 */
 	public function close_block()
@@ -94,7 +94,7 @@ class ExecutionTreeBuilder
 		$this->current_block = $this->current_block->parent;
 	}
 	/**
-	 * เพิ่มเฮดเดอร์ให้กับบล็อคปัจจุบัน
+	 * เน€เธเธดเนเธกเน€เธฎเธ”เน€เธ”เธญเธฃเนเนเธซเนเธเธฑเธเธเธฅเนเธญเธเธเธฑเธเธเธธเธเธฑเธ
 	 * @param mixed $key
 	 * @param mixed $value
 	 */
@@ -103,7 +103,7 @@ class ExecutionTreeBuilder
 		if($key) $this->current_block->add_header($key, $value);
 	}
 	/**
-	 * ดึง execution tree ที่สร้างเสร็จแล้ว
+	 * เธ”เธถเธ execution tree เธ—เธตเนเธชเธฃเนเธฒเธเน€เธชเธฃเนเธเนเธฅเนเธง
 	 * @return \Chassis\Parser\BlockNode
 	 */
 	public function get_tree()
@@ -111,7 +111,7 @@ class ExecutionTreeBuilder
 		return $this->root_block;
 	}
 	/**
-	 * กลับไปสู่สภาวะเริ่มต้น
+	 * เธเธฅเธฑเธเนเธเธชเธนเนเธชเธ เธฒเธงเธฐเน€เธฃเธดเนเธกเธ•เนเธ
 	 */
 	public function reset()
 	{
@@ -177,9 +177,9 @@ class ExecutionTreeBuilder
 	}
 }
 /**
- * implement ให้กับ Scanner ที่จะใช้อ่านช่องว่างภายใน keyword ของแท็ก
- * Scanner ดังกล่าวได้แก่ IdentifierScanner และ ExpressionScanner
- * คลาสที่ implement interface ตัวนี้ จะสามารถตรวจสอบได้ว่าอยู่ใน ground state หรือไม่
+ * implement เนเธซเนเธเธฑเธ Scanner เธ—เธตเนเธเธฐเนเธเนเธญเนเธฒเธเธเนเธญเธเธงเนเธฒเธเธ เธฒเธขเนเธ keyword เธเธญเธเนเธ—เนเธ
+ * Scanner เธ”เธฑเธเธเธฅเนเธฒเธงเนเธ”เนเนเธเน IdentifierScanner เนเธฅเธฐ ExpressionScanner
+ * เธเธฅเธฒเธชเธ—เธตเน implement interface เธ•เธฑเธงเธเธตเน เธเธฐเธชเธฒเธกเธฒเธฃเธ–เธ•เธฃเธงเธเธชเธญเธเนเธ”เนเธงเนเธฒเธญเธขเธนเนเนเธ ground state เธซเธฃเธทเธญเนเธกเน
  * @author acer-pc
  *
  */
@@ -190,7 +190,7 @@ interface IBlankScanner
 
 const VS_ERROR_ILLEGAL_CHAR = 41;
 /**
- * คลาสนี้ใช้สำหรับอ่านชื่อตัวแปร
+ * เธเธฅเธฒเธชเธเธตเนเนเธเนเธชเธณเธซเธฃเธฑเธเธญเนเธฒเธเธเธทเนเธญเธ•เธฑเธงเนเธเธฃ
  * @author acer-pc
  *
  */
@@ -251,35 +251,35 @@ const KN_BLANK_VAR = 2;
 class KeywordNode
 {
 	/**
-	 * ชนิดของโนด ได้แก่ KN_TYPE_ROOT, KN_TYPE_KEYWORD และ KN_TYPE_BLANK
+	 * เธเธเธดเธ”เธเธญเธเนเธเธ” เนเธ”เนเนเธเน KN_TYPE_ROOT, KN_TYPE_KEYWORD เนเธฅเธฐ KN_TYPE_BLANK
 	 * @var int
 	 */
 	public $type;
 	/**
-	 * ระบุ key ของ header ที่จะให้เพิ่มค่า เมื่ออ่านเจอ keyword นี้
-	 * หากกำหนดชนิดเป็น KN_TYPE_KEYWORD จะเพิ่มค่า true ลงใน header
-	 * หากกำหนดชนิดเป็น KN_TYPE_BLANK จะเพิ่มค่าที่อ่านได้ลงใน header
+	 * เธฃเธฐเธเธธ key เธเธญเธ header เธ—เธตเนเธเธฐเนเธซเนเน€เธเธดเนเธกเธเนเธฒ เน€เธกเธทเนเธญเธญเนเธฒเธเน€เธเธญ keyword เธเธตเน
+	 * เธซเธฒเธเธเธณเธซเธเธ”เธเธเธดเธ”เน€เธเนเธ KN_TYPE_KEYWORD เธเธฐเน€เธเธดเนเธกเธเนเธฒ true เธฅเธเนเธ header
+	 * เธซเธฒเธเธเธณเธซเธเธ”เธเธเธดเธ”เน€เธเนเธ KN_TYPE_BLANK เธเธฐเน€เธเธดเนเธกเธเนเธฒเธ—เธตเนเธญเนเธฒเธเนเธ”เนเธฅเธเนเธ header
 	 * @var mixed
 	 */
 	public $target_header;
 	/**
-	 * ชนิดของช่องว่าง (ในกรณีที่ระบุชนิดของโนดเป็น KN_TYPE_BLANK)
-	 * ได้แก่ KN_BLANK_EXP และ KN_BLANK_VAR
+	 * เธเธเธดเธ”เธเธญเธเธเนเธญเธเธงเนเธฒเธ (เนเธเธเธฃเธ“เธตเธ—เธตเนเธฃเธฐเธเธธเธเธเธดเธ”เธเธญเธเนเธเธ”เน€เธเนเธ KN_TYPE_BLANK)
+	 * เนเธ”เนเนเธเน KN_BLANK_EXP เนเธฅเธฐ KN_BLANK_VAR
 	 * @var int
 	 */
 	public $blank_type;
 	/**
-	 * คีย์เวิร์ด (กรณีที่ระบุชนิดเป็น KN_TYPE_KEYWORD)
+	 * เธเธตเธขเนเน€เธงเธดเธฃเนเธ” (เธเธฃเธ“เธตเธ—เธตเนเธฃเธฐเธเธธเธเธเธดเธ”เน€เธเนเธ KN_TYPE_KEYWORD)
 	 * @var string
 	 */
 	public $keyword_str;
 	/**
-	 * อาร์เรย์เก็บโนดลูก
+	 * เธญเธฒเธฃเนเน€เธฃเธขเนเน€เธเนเธเนเธเธ”เธฅเธนเธ
 	 * @var array
 	 */
 	public $children = [];
 	/**
-	 * โนดแม่
+	 * เนเธเธ”เนเธกเน
 	 * @var KeywordNode
 	 */
 	public $parent;
@@ -299,10 +299,10 @@ class KeywordNode
 		return $ret;
 	}
 	/**
-	 * ค้นหาโนดลูกที่ระบุ
-	 * @param int $type ชนิดของโนดลูก
-	 * @param string $keyword_str ข้อความของคีย์เวิร์ด ในกรณีที่กำหนดชนิดเป็น keyword ให้ระบุพารามิเตอร์นี้ด้วย
-	 * @return ถ้าพบ คืนค่า KeywordNode ถ้าไม่พบ คืนค่า false
+	 * เธเนเธเธซเธฒเนเธเธ”เธฅเธนเธเธ—เธตเนเธฃเธฐเธเธธ
+	 * @param int $type เธเธเธดเธ”เธเธญเธเนเธเธ”เธฅเธนเธ
+	 * @param string $keyword_str เธเนเธญเธเธงเธฒเธกเธเธญเธเธเธตเธขเนเน€เธงเธดเธฃเนเธ” เนเธเธเธฃเธ“เธตเธ—เธตเนเธเธณเธซเธเธ”เธเธเธดเธ”เน€เธเนเธ keyword เนเธซเนเธฃเธฐเธเธธเธเธฒเธฃเธฒเธกเธดเน€เธ•เธญเธฃเนเธเธตเนเธ”เนเธงเธข
+	 * @return เธ–เนเธฒเธเธ เธเธทเธเธเนเธฒ KeywordNode เธ–เนเธฒเนเธกเนเธเธ เธเธทเธเธเนเธฒ false
 	 */
 	public function search($type, $keyword_str = null)
 	{
@@ -317,10 +317,10 @@ class KeywordNode
 	}
 	/**
 	 * 
-	 * @param int $type ชนิดของโนด
-	 * @param string $keyword_str คีย์เวิร์ด กรณีที่กำหนดชนิดเป็น KN_TYPE_KEYWORD
-	 * @param int $blank_type ชนิดของช่องว่าง กรณีที่กำหนดชนิดเป็น KN_TYPE_BLANK
-	 * @param string $target_header คีย์ของเฮดเดอร์ ที่จะให้ใส่ค่าลงไปเมื่ออ่านเจอคีย์เวิร์ดตัวนี้
+	 * @param int $type เธเธเธดเธ”เธเธญเธเนเธเธ”
+	 * @param string $keyword_str เธเธตเธขเนเน€เธงเธดเธฃเนเธ” เธเธฃเธ“เธตเธ—เธตเนเธเธณเธซเธเธ”เธเธเธดเธ”เน€เธเนเธ KN_TYPE_KEYWORD
+	 * @param int $blank_type เธเธเธดเธ”เธเธญเธเธเนเธญเธเธงเนเธฒเธ เธเธฃเธ“เธตเธ—เธตเนเธเธณเธซเธเธ”เธเธเธดเธ”เน€เธเนเธ KN_TYPE_BLANK
+	 * @param string $target_header เธเธตเธขเนเธเธญเธเน€เธฎเธ”เน€เธ”เธญเธฃเน เธ—เธตเนเธเธฐเนเธซเนเนเธชเนเธเนเธฒเธฅเธเนเธเน€เธกเธทเนเธญเธญเนเธฒเธเน€เธเธญเธเธตเธขเนเน€เธงเธดเธฃเนเธ”เธ•เธฑเธงเธเธตเน
 	 */
 	public function __construct($type, $keyword_str = null, $blank_type = null, $target_header = null)
 	{
@@ -331,9 +331,9 @@ class KeywordNode
 	}
 	
 	/**
-	 * สร้าง KeywordNode จากรายการของลำดับของคีย์เวิร์ดที่กำหนด
-	 * หากเป็นช่องว่างชนิดนิพจน์ ให้ระบุ #exp หากเป็นช่องว่างชนิดตัวแปร ให้ระบุ #var
-	 * ลำดับของคีย์เวิร์ด ให้ระบุในรูป keyword1.targetheader1 keyword2.targetheader2 หรือไม่ต้องระบุ targetheader ก็ได้
+	 * เธชเธฃเนเธฒเธ KeywordNode เธเธฒเธเธฃเธฒเธขเธเธฒเธฃเธเธญเธเธฅเธณเธ”เธฑเธเธเธญเธเธเธตเธขเนเน€เธงเธดเธฃเนเธ”เธ—เธตเนเธเธณเธซเธเธ”
+	 * เธซเธฒเธเน€เธเนเธเธเนเธญเธเธงเนเธฒเธเธเธเธดเธ”เธเธดเธเธเธเน เนเธซเนเธฃเธฐเธเธธ #exp เธซเธฒเธเน€เธเนเธเธเนเธญเธเธงเนเธฒเธเธเธเธดเธ”เธ•เธฑเธงเนเธเธฃ เนเธซเนเธฃเธฐเธเธธ #var
+	 * เธฅเธณเธ”เธฑเธเธเธญเธเธเธตเธขเนเน€เธงเธดเธฃเนเธ” เนเธซเนเธฃเธฐเธเธธเนเธเธฃเธนเธ keyword1.targetheader1 keyword2.targetheader2 เธซเธฃเธทเธญเนเธกเนเธ•เนเธญเธเธฃเธฐเธเธธ targetheader เธเนเนเธ”เน
 	 * @param array $keyword_seqs
 	 * @return KeywordNode
 	 */

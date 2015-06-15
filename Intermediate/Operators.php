@@ -10,32 +10,32 @@ const OPER_INFIX = 2;
 const OPER_POSTFIX = 3;
 
 /**
- * ���ʹ���繵��᷹�ͧ��Ǵ��Թ���
+ * คลาสนี้เป็นตัวแทนของตัวดำเนินการ
  * @author acer-pc
  *
  */
 abstract class Operator
 {
 	/**
-	 * �纤�ҷ���кت�Դ�ͧ��Ǵ��Թ���
+	 * เก็บค่าที่ระบุชนิดของตัวดำเนินการ
 	 * @var int
 	 */
 	public $id;
 	/**
-	 * �纤�ҷ���к���ҵ�Ǵ��Թ��ù���ͧ�ҧ�ç��ǹ㴢ͧ��Ƕ١���Թ��� ����
-	 * OPER_PREFIX : �ҧ��ҹ˹��
-	 * OPER_INFIX : �ҧ�ç��ҧ
-	 * OPER_POSTFIX : �ҧ��ҹ��ѧ
+	 * เก็บค่าที่ระบุว่าตัวดำเนินการนี้ต้องวางตรงส่วนใดของตัวถูกดำเนินการ ได้แก่
+	 * OPER_PREFIX : วางด้านหน้า
+	 * OPER_INFIX : วางตรงกลาง
+	 * OPER_POSTFIX : วางด้านหลัง
 	 * @var int
 	 */
 	public $affix;
 	/**
-	 * �к� precedence �ͧ��Ǵ��Թ���
+	 * ระบุ precedence ของตัวดำเนินการ
 	 * @var int
 	 */
 	public $precedence;
 	/**
-	 * ��˹���÷ӧҹ�ͧ��Ǵ��Թ���
+	 * กำหนดการทำงานของตัวดำเนินการ
 	 * @param Expression $left
 	 * @param Expression $right
 	 */
@@ -43,14 +43,14 @@ abstract class Operator
 }
 
 /**
- * �繤��ʷ���� operator �������� ��� �觵����Դ affix
+ * เป็นคลาสที่เก็บ operator ไว้หลายๆ ตัว แบ่งตามชนิด affix
  * @author acer-pc
  *
  */
 class OperatorPolymorphism
 {
 	/**
-	 * �纪�Դ affix �Ѻ���Ѻ oper
+	 * เก็บชนิด affix จับคู่กับ oper
 	 * @var array
 	 */
 	private $opers;
@@ -67,7 +67,7 @@ class OperatorPolymorphism
 		if($oper3 !== null) $this->opers[$oper3->affix] = $oper3;
 	}
 	/**
-	 * ��Ǩ�ͺ��� 㹡��������� operator ��Դ����к��������
+	 * ตรวจสอบว่า ในกลุ่มนี้มี operator ชนิดที่ระบุหรือไม่
 	 * @param int $affix
 	 * @return bool
 	 */
@@ -76,7 +76,7 @@ class OperatorPolymorphism
 		return array_key_exists($affix, $this->opers);
 	}
 	/**
-	 * �֧ operator ���¡�÷���ժ�Դ affix ����к�
+	 * ดึง operator ในรายการที่มีชนิด affix ที่ระบุ
 	 * @param int $affix
 	 * @return Operator
 	 */
@@ -108,7 +108,7 @@ const OPER_ARRAY_RETRIEVAL = 18; // x.y
 const OPER_VAR_BUILT_IN = 19; //@x
 
 /**
- * ���ʸ (!)
+ * นิเสธ (!)
  * @author acer-pc
  *
  */
@@ -127,7 +127,7 @@ class Operator_Not extends Operator
 	}
 }
 /**
- * ��� (&&)
+ * และ (&&)
  */
 class Operator_And extends Operator
 {
@@ -144,7 +144,7 @@ class Operator_And extends Operator
 	}
 }
 /**
- * ���� (||)
+ * หรือ (||)
  */
 class Operator_Or extends Operator
 {
@@ -161,7 +161,7 @@ class Operator_Or extends Operator
 	}
 }
 /**
- * ��ҡѺ (==)
+ * เท่ากับ (==)
  */
 class Operator_Equal extends Operator
 {
@@ -178,7 +178,7 @@ class Operator_Equal extends Operator
 	}
 }
 /**
- * ���¡��� (<)
+ * น้อยกว่า (<)
  */
 class Operator_LessThan extends Operator
 {
@@ -195,7 +195,7 @@ class Operator_LessThan extends Operator
 	}
 }
 /**
- * �ҡ����(>)
+ * มากกว่า(>)
  */
 class Operator_GreaterThan extends Operator
 {
@@ -212,7 +212,7 @@ class Operator_GreaterThan extends Operator
 	}
 }
 /**
- * ���¡���������ҡѺ (<=)
+ * น้อยกว่าหรือเท่ากับ (<=)
  */
 class Operator_LessThanOrEqual extends Operator
 {
@@ -229,7 +229,7 @@ class Operator_LessThanOrEqual extends Operator
 	}
 }
 /**
- * �ҡ����������ҡѺ (>=)
+ * มากกว่าหรือเท่ากับ (>=)
  */
 class Operator_GreaterThanOrEqual extends Operator
 {
@@ -246,7 +246,7 @@ class Operator_GreaterThanOrEqual extends Operator
 	}
 }
 /**
- * �ӹǹ���ź(-x)
+ * จำนวนเต็มลบ(-x)
  */
 class Operator_Negative extends Operator
 {
@@ -263,7 +263,7 @@ class Operator_Negative extends Operator
 	}
 }
 /**
- * �ٳ(*)
+ * คูณ(*)
  */
 class Operator_Multiply extends Operator
 {
@@ -280,7 +280,7 @@ class Operator_Multiply extends Operator
 	}
 }
 /**
- * ���(/)
+ * หาร(/)
  */
 class Operator_Divide extends Operator
 {
@@ -297,7 +297,7 @@ class Operator_Divide extends Operator
 	}
 }
 /**
- * �ǡ, ���ʵ�ԧ (+)
+ * บวก, ต่อสตริง (+)
  */
 class Operator_Add extends Operator
 {
@@ -323,7 +323,7 @@ class Operator_Add extends Operator
 	}
 }
 /**
- * ź
+ * ลบ
  */
 class Operator_Subtract extends Operator
 {
@@ -340,7 +340,7 @@ class Operator_Subtract extends Operator
 	}
 }
 /**
- * �ʹ��� (%)
+ * มอดุโล (%)
  */
 class Operator_Modulo extends Operator
 {
@@ -357,7 +357,7 @@ class Operator_Modulo extends Operator
 	}
 }
 /**
- * ���¡�ѧ��ѹ
+ * เรียกฟังก์ชัน
  */
 class Operator_FunctionCall extends Operator
 {
@@ -374,7 +374,7 @@ class Operator_FunctionCall extends Operator
 	}
 }
 /**
- * ���¡�٤�����������
+ * เรียกดูค่าในอาร์เรย์
  */
 class Operator_GetArrayValue extends Operator
 {

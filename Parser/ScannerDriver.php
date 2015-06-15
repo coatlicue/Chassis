@@ -6,25 +6,25 @@ include_once __DIR__."/Scanner.php";
 class ScannerDriver implements IScanner
 {
 	/**
-	 * ʵ�ԧ�����᡹
+	 * สตริงที่จะสแกน
 	 * @var string
 	 */
 	public $str;
 	
 	/**
-	 * scanner ���ж١�Ѻ����͹
+	 * scanner ที่จะถูกขับเคลื่อน
 	 * @var Scanner
 	 */
 	public $child;
 	
 	/**
-	 * ���˹��������
+	 * ตำแหน่งเริ่มต้น
 	 * @var int
 	 */
 	public $position = -1;
 	
 	/**
-	 * error ����ش����Դ�ҡ��÷ӧҹ�ͧ scanner
+	 * error ล่าสุดที่เกิดจากการทำงานของ scanner
 	 * @var Error
 	 */
 	public $last_error;
@@ -36,7 +36,7 @@ class ScannerDriver implements IScanner
 	{
 		$this->child->reset();
 		$this->child->initialize();
-		//������ scanner ����͹��ѧ���˹觷����ش�ͧʵ�ԧ
+		//สั่งให้ scanner เคลื่อนไปยังตำแหน่งท้ายสุดของสตริง
 		$this->child->advance_to(strlen($this->str) - 1);
 		$this->child->finalize();
 		if($this->child->state === SC_STATE_DEAD)

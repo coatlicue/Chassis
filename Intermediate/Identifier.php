@@ -1,7 +1,7 @@
 <?php
 namespace Chassis\Intermediate;
 /**
- * ���ʹ���鹵��᷹�ͧ Identifier
+ * คลาสนี้เป้นตัวแทนของ Identifier
  * @author acer-pc
  *
  */

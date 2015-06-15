@@ -40,8 +40,8 @@ const EXS_EVAL = 1;
 const EXS_CLOSE_TAG = 2;
 
 const EXS_ERROR_REQUIRED_EVAL_DELIMITER = 21;
-const EXS_ERROR_REQUIRED_KEYWORD = 22; //เกิดขึ้นเมื่อผู้ใช้ไม่ได้ระบุคีย์เวิร์ดของแท็ก
-const EXS_ERROR_UNEXPECTED_CURLY_BRACE = 23; //เก็บขึ้นเมื่อผู้ใช้ระบุพารามิเตอร์ของแท็กไม่ครบ (เช่น {@for i from x} <- ไม่มี to)
+const EXS_ERROR_REQUIRED_KEYWORD = 22; //เน€เธเธดเธ”เธเธถเนเธเน€เธกเธทเนเธญเธเธนเนเนเธเนเนเธกเนเนเธ”เนเธฃเธฐเธเธธเธเธตเธขเนเน€เธงเธดเธฃเนเธ”เธเธญเธเนเธ—เนเธ
+const EXS_ERROR_UNEXPECTED_CURLY_BRACE = 23; //เน€เธเนเธเธเธถเนเธเน€เธกเธทเนเธญเธเธนเนเนเธเนเธฃเธฐเธเธธเธเธฒเธฃเธฒเธกเธดเน€เธ•เธญเธฃเนเธเธญเธเนเธ—เนเธเนเธกเนเธเธฃเธ (เน€เธเนเธ {@for i from x} <- เนเธกเนเธกเธต to)
 
 class ExecutionScanner extends StateScanner
 {
@@ -101,7 +101,7 @@ class ExecutionScanner extends StateScanner
 					{
 						$this->state_ground->expectation_tree->add_str("{/@$tag->name}", EXS_CLOSE_TAG);
 					}
-					//ส่งต่อไปยัง tag read state โดยใช้เมธอด tag_read_transfer และเลือกให้ keyword node ของ block instruction ที่อ่านได้เป็น next_keyword_node
+					//เธชเนเธเธ•เนเธญเนเธเธขเธฑเธ tag read state เนเธ”เธขเนเธเนเน€เธกเธเธญเธ” tag_read_transfer เนเธฅเธฐเน€เธฅเธทเธญเธเนเธซเน keyword node เธเธญเธ block instruction เธ—เธตเนเธญเนเธฒเธเนเธ”เนเน€เธเนเธ next_keyword_node
 					$this->state_tag_read->current_keyword_node = $tag->keyword_tree;
 					$this->state_ground->next_transition = new Transition($this->state_tag_read);
 				}
@@ -133,7 +133,7 @@ class ExecutionScanner extends StateScanner
 		return $this->exec_builder->get_tree();
 	}
 	/**
-	 * รายงานความผิดพลาด
+	 * เธฃเธฒเธขเธเธฒเธเธเธงเธฒเธกเธเธดเธ”เธเธฅเธฒเธ”
 	 * @param Error $err
 	 */
 	public function report_error($err)
@@ -223,12 +223,12 @@ class ExecutionScanner extends StateScanner
 class ExecutionScanner_evalReadState extends State
 {
 	/**
-	 * ระบุว่า ขณะนี้กำลังอ่าน modifier อยู่หรือไม่
+	 * เธฃเธฐเธเธธเธงเนเธฒ เธเธ“เธฐเธเธตเนเธเธณเธฅเธฑเธเธญเนเธฒเธ modifier เธญเธขเธนเนเธซเธฃเธทเธญเนเธกเน
 	 * @var boolean
 	 */
 	private $reading_modifier = false;
 	/**
-	 * modifier ที่อ่านได้
+	 * modifier เธ—เธตเนเธญเนเธฒเธเนเธ”เน
 	 * @var string
 	 */
 	private $modifier = "";
@@ -238,7 +238,7 @@ class ExecutionScanner_evalReadState extends State
 	 */
 	private $exp_scanner;
 	/**
-	 * Scanner ที่เป็นเจ้าของ state นี้
+	 * Scanner เธ—เธตเนเน€เธเนเธเน€เธเนเธฒเธเธญเธ state เธเธตเน
 	 * @var ExecutionScanner $scanner
 	 */
 	private $scanner;
@@ -276,7 +276,7 @@ class ExecutionScanner_evalReadState extends State
 					$this->exp_scanner->finalize();
 					$exp = $this->exp_scanner->summarize();
 			
-					//จัดการ modifier
+					//เธเธฑเธ”เธเธฒเธฃ modifier
 					$mods = explode(",", $this->modifier);
 					$mod_flag = 0;
 					foreach ($mods as $m)
@@ -289,10 +289,10 @@ class ExecutionScanner_evalReadState extends State
 						}
 					}
 				
-					//บันทึกข้อมูล
+					//เธเธฑเธเธ—เธถเธเธเนเธญเธกเธนเธฅ
 					$this->scanner->exec_builder->add_evaluation($exp, $mod_flag);
 			
-					//ส่งกลับไปยัง ground state
+					//เธชเนเธเธเธฅเธฑเธเนเธเธขเธฑเธ ground state
 					$this->next_transition = new Transition($this->scanner->state_ground);
 				}
 				elseif($this->reading_modifier)
@@ -308,7 +308,7 @@ class ExecutionScanner_evalReadState extends State
 					$this->exp_scanner->advance_here();
 					if($this->exp_scanner->state === SC_STATE_DEAD)
 					{
-						//ส่งไปยัง ground state โดยแนบ error ไปด้วย
+						//เธชเนเธเนเธเธขเธฑเธ ground state เนเธ”เธขเนเธเธ error เนเธเธ”เนเธงเธข
 						$this->scanner->report_error($this->exp_scanner->error);
 					}
 				}
@@ -324,39 +324,39 @@ class ExecutionScanner_evalReadState extends State
 class ExecutionScanner_tagReadState extends State
 {
 	/**
-	 * ExpressionScanner ที่เก็บไว้ใช้
+	 * ExpressionScanner เธ—เธตเนเน€เธเนเธเนเธงเนเนเธเน
 	 * @var ExpressionScanner
 	 */
 	private $blank_exp_scanner;
 	/**
-	 * IdentifierScanner ที่เก็บไว้ใช้
+	 * IdentifierScanner เธ—เธตเนเน€เธเนเธเนเธงเนเนเธเน
 	 * @var IdentifierScanner
 	 */
 	private $blank_var_scanner;
 	
 	/**
-	 * Scanner ที่เอาไว้อ่านช่องเติมคำ
+	 * Scanner เธ—เธตเนเน€เธญเธฒเนเธงเนเธญเนเธฒเธเธเนเธญเธเน€เธ•เธดเธกเธเธณ
 	 * @var IBlankScanner
 	 */
 	private $blank_scanner;
 	/**
-	 * เก็บตำแหน่งของ space ล่าสุด
+	 * เน€เธเนเธเธ•เธณเนเธซเธเนเธเธเธญเธ space เธฅเนเธฒเธชเธธเธ”
 	 * @var int
 	 */
 	private $last_space_pos;
 	/**
-	 * keyword node ปัจจุบันที่กำลังทำงานด้วย
+	 * keyword node เธเธฑเธเธเธธเธเธฑเธเธ—เธตเนเธเธณเธฅเธฑเธเธ—เธณเธเธฒเธเธ”เนเธงเธข
 	 * @var KeywordNode
 	 */
 	public $current_keyword_node;
 	/**
-	 * สตริงที่เก็บไว้พิจารณาว่า เป็นคีย์เวิร์ดหรือไม่
+	 * เธชเธ•เธฃเธดเธเธ—เธตเนเน€เธเนเธเนเธงเนเธเธดเธเธฒเธฃเธ“เธฒเธงเนเธฒ เน€เธเนเธเธเธตเธขเนเน€เธงเธดเธฃเนเธ”เธซเธฃเธทเธญเนเธกเน
 	 * @var string
 	 */
 	private $stored_keyword;
 	
 	/**
-	 * execution scanner ที่เป็นเจ้าของ state นี้
+	 * execution scanner เธ—เธตเนเน€เธเนเธเน€เธเนเธฒเธเธญเธ state เธเธตเน
 	 * @var ExecutionScanner
 	 */
 	private $parent_scanner;
@@ -408,7 +408,7 @@ class ExecutionScanner_tagReadState extends State
 				$p = $this->parent_scanner->peek_ahead();
 				if($p === " " || $p === "\r" || $p === "\n" || $p === "}")
 				{
-					//เมื่อพบกับ whitespace หรือตัวจบ (}) ให้เอา keyword ที่อ่านได้ไปค้นหาว่ามีอยู่จริงหรือไม่ ถ้าไม่มีก็ให้ถือว่าเป็นช่องว่าง
+					//เน€เธกเธทเนเธญเธเธเธเธฑเธ whitespace เธซเธฃเธทเธญเธ•เธฑเธงเธเธ (}) เนเธซเนเน€เธญเธฒ keyword เธ—เธตเนเธญเนเธฒเธเนเธ”เนเนเธเธเนเธเธซเธฒเธงเนเธฒเธกเธตเธญเธขเธนเนเธเธฃเธดเธเธซเธฃเธทเธญเนเธกเน เธ–เนเธฒเนเธกเนเธกเธตเธเนเนเธซเนเธ–เธทเธญเธงเนเธฒเน€เธเนเธเธเนเธญเธเธงเนเธฒเธ
 					$node = $this->current_keyword_node->search(KN_TYPE_KEYWORD, $this->stored_keyword);
 					$this->stored_keyword = "";
 					if($node)
@@ -450,8 +450,8 @@ class ExecutionScanner_tagReadState extends State
 	}
 	
 	/**
-	 * ขอใช้งาน blank scanner
-	 * @param int $type ชนิดของ blank
+	 * เธเธญเนเธเนเธเธฒเธ blank scanner
+	 * @param int $type เธเธเธดเธ”เธเธญเธ blank
 	 */
 	private function _use_blank_scanner($type, $position)
 	{
@@ -486,7 +486,7 @@ class ExecutionScanner_tagReadState extends State
 		$this->blank_scanner->position = $position;
 	}
 	/**
-	 * บันทึกข้อมูลใน blank ที่อ่านได้
+	 * เธเธฑเธเธ—เธถเธเธเนเธญเธกเธนเธฅเนเธ blank เธ—เธตเนเธญเนเธฒเธเนเธ”เน
 	 */
 	private function _save_blank_data()
 	{
