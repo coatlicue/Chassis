@@ -2,12 +2,20 @@
 use Chassis\Parser\ExecutionScanner;
 use Chassis\Parser\KeywordNode;
 use Chassis\Parser\ScannerDriver;
+use Chassis\Intermediate\Context;
+use Chassis\Intermediate as I;
 include_once "Parser/ExecutionParserImplemented.php";
+include_once "Intermediate/Context.php";
+
+for($i=1; $i<=100; $i++)
+{
+	Context::set_var(I\VAR_CHANNEL_NORMAL, "var$i", $i, true);
+}
 
 $d = new ScannerDriver();
-for($i=1; $i<=1000; $i++)
+for($i=1; $i<=100; $i++)
 {
-	$d->str .= "{".$i."},";
+	$d->str .= "{var".$i."},";
 }
 
 echo "Length: ".strlen($d->str)."<br>";
