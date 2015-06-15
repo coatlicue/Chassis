@@ -3,6 +3,7 @@ namespace Chassis\Intermediate;
 
 include_once __DIR__.'/Operators.php';
 include_once __DIR__.'/Identifier.php';
+include_once __DIR__.'/Context.php';
 
 const LITERAL_NUMBER = 0;
 const LITERAL_STRING = 1;
@@ -164,7 +165,7 @@ class VariableExpression extends Expression
 	{
 		if($base === null || !is_array($base))
 		{
-			//เรียกดูตัวแปรจาก current context
+			return Context::get_var(VAR_CHANNEL_NORMAL, $this->get_var_name());
 		}
 		else
 		{
