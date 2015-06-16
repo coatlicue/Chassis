@@ -239,14 +239,20 @@ class ExecutionScanner_evalReadState extends State
 	private $exp_scanner;
 	/**
 	 * Scanner ที่เป็นเจ้าของ state นี้
-	 * @var ExecutionScanner $scanner
+	 * @var ExecutionScanner
 	 */
 	private $scanner;
+	/**
+	 * Transition ไปยัง ground state
+	 * @var Transition
+	 */
+	private $ground_transition;
 	
 	public function __construct($scanner)
 	{
 		$this->scanner = $scanner;
 		$this->operation = [$this, "state"];
+		$this->ground_transition = new Transition($this->scanner->state_ground);
 	}
 	
 	public function state($transition)
@@ -293,7 +299,7 @@ class ExecutionScanner_evalReadState extends State
 					$this->scanner->exec_builder->add_evaluation($exp, $mod_flag);
 			
 					//ส่งกลับไปยัง ground state
-					$this->next_transition = new Transition($this->scanner->state_ground);
+					$this->next_transition = $this->ground_transition;
 				}
 				elseif($this->reading_modifier)
 				{
