@@ -46,7 +46,7 @@ const EXS_ERROR_UNEXPECTED_CURLY_BRACE = 23; //เก็บขึ้นเมื
 class ExecutionScanner extends StateScanner
 {
 	/**
-	 * 
+	 * execution tree builder
 	 * @var ExecutionTreeBuilder
 	 */
 	public $exec_builder;
@@ -54,6 +54,12 @@ class ExecutionScanner extends StateScanner
 	public $state_ground;
 	private $state_eval_read;
 	private $state_tag_read;
+	
+	/**
+	 * transition ไปยัง eval read state
+	 * @var Transition
+	 */
+	private $transition_eval_read;
 	
 	public function __construct($parent)
 	{
@@ -71,8 +77,9 @@ class ExecutionScanner extends StateScanner
 		$this->initial_state = $this->state_ground;
 		
 		$this->state_eval_read = new ExecutionScanner_evalReadState($this);
-		
 		$this->state_tag_read = new ExecutionScanner_tagReadState($this);
+		
+		$this->transition_eval_read = new Transition($this->state_eval_read);
 		
 		parent::__construct($parent);
 	}
@@ -107,7 +114,7 @@ class ExecutionScanner extends StateScanner
 				}
 				elseif($tag === EXS_EVAL)
 				{
-					$this->state_ground->next_transition = new Transition($this->state_eval_read);
+					$this->state_ground->next_transition = $this->transition_eval_read;
 				}
 				elseif($tag === EXS_CLOSE_TAG)
 				{
