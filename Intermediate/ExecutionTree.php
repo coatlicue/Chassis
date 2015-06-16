@@ -136,8 +136,7 @@ class BlockNode extends ExecutionNode
 		if($this->block_instruction !== BLOCKNODE_ROOT)
 		{
 			Context::enter_block();
-			$ret = call_user_func($this->block_instruction->operation
-					, $this->headers, $this->children);
+			$ret = $this->block_instruction->operation($this->headers, $this->children);
 			Context::exit_block();
 			return $ret;
 		}
