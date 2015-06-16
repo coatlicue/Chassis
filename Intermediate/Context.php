@@ -133,12 +133,24 @@ class Context
 			return null;
 		}
 	}
-	
+	/**
+	 * ล้างค่าตัวแปรทั้งหมด
+	 */
 	public static function reset()
 	{
 		self::$var_list = [];
 		self::$preserve = [];
 		self::$latest_preserve = null;
+	}
+	/**
+	 * ล้างค่าเฉพาะตัวแปรในช่อง reserve
+	 */
+	public static function clear_reserve()
+	{
+		if(array_key_exists(VAR_CHANNEL_RESERVED, self::$var_list))
+		{
+			unset(self::$var_list[VAR_CHANNEL_RESERVED]);
+		}
 	}
 	
 	public static function _test()
