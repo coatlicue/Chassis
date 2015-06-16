@@ -60,7 +60,7 @@ class BlockInstruction_If extends BlockInstruction
 	
 	public function operation($headers, $children)
 	{
-		if($headers['cond'])
+		if($headers['cond']->calculate())
 		{
 			Context::set_var(I\VAR_CHANNEL_RESERVED, "execute_else", false, true);
 			return $children->execute_all();
@@ -129,8 +129,8 @@ class BlockInstruction_For extends BlockInstruction
 		//TODO : ตรวจสอบด้วยว่า พารามิเตอร์ที่ได้รับมีค่าเป็นตัวเลขหรือไม่
 		$start = $headers['start']->calculate();
 		$end = $headers['end']->calculate();
-		$counter_name = $header['counter']->get_name();
-		$step = array_key_exists('step', $header) ? $header['step']->calculate() : 1;
+		$counter_name = $headers['counter']->get_name();
+		$step = array_key_exists('step', $headers) ? $headers['step']->calculate() : 1;
 	
 		$min = min([$start, $end]);
 		$max = max([$start, $end]);
@@ -162,7 +162,7 @@ class BlockInstruction_ForEach extends BlockInstruction
 
 	public function operation($headers, $children)
 	{
-		if(is_array($headers['array']))
+		if(is_array($array = $headers['array']->calculate()))
 		{
 			$key_name = "";
 			$value_name = "";
@@ -179,7 +179,7 @@ class BlockInstruction_ForEach extends BlockInstruction
 			
 			$ret = "";
 			
-			foreach($headers['array'] as $key=>$value)
+			foreach($array as $key=>$value)
 			{
 				if($key_name !== null) Context::set_var(I\VAR_CHANNEL_NORMAL, $key_name, $key, false);
 				Context::set_var(I\VAR_CHANNEL_NORMAL, $value_name, $value, false);

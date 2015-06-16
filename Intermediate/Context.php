@@ -24,6 +24,11 @@ class Context
 	 */
 	private static $latest_preserve = null;
 	/**
+	 * เป็นตัวแปรสำหรับให้ $latest_preserve ชี้มา ถ้าไม่มีสมาชิกใน $preserve เหลืออยู่เลย
+	 */
+	private static $null_reference = null;
+	
+	/**
 	 * ใส่ค่าให้กับตัวแปร
 	 * @param int $channel ช่องของตัวแปร
 	 * @param mixed $var_name ชื่อของตัวแปร
@@ -65,7 +70,14 @@ class Context
 	public static function exit_block()
 	{
 		$preserve = array_pop(self::$preserve);
-		self::$latest_preserve = &self::$preserve[count(self::$preserve)-1]; //ชี้ไปที่ตำแหน่งท้ายสุด
+		if(count(self::$preserve) > 0)
+		{
+			self::$latest_preserve = &self::$preserve[count(self::$preserve)-1]; //ชี้ไปที่ตำแหน่งท้ายสุด
+		}
+		else
+		{
+			self::$latest_preserve = &self::$null_reference;
+		}
 		
 		$channels = array_keys($preserve);
 		for($i=0; $i<count($channels); $i++) //foreach ($preserve as $channel=>$var_list)
@@ -140,7 +152,7 @@ class Context
 	{
 		self::$var_list = [];
 		self::$preserve = [];
-		self::$latest_preserve = null;
+		self::$latest_preserve = &self::$null_reference;
 	}
 	/**
 	 * ล้างค่าเฉพาะตัวแปรในช่อง reserve

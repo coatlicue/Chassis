@@ -142,7 +142,9 @@ class BlockNode extends ExecutionNode
 		}
 		else
 		{
-			return $this->children->execute_all();
+			$ret = $this->children->execute_all();
+			Context::clear_reserve();
+			return $ret;
 		}
 	}
 	/**

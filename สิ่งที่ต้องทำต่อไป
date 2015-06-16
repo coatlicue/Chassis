@@ -1,2 +1,3 @@
-ใส่ operation ให้กับ blockinstruction และ operator ต่างๆ
-จัดกลุ่ม error code ของระบบ parse ให้เป็นระเบียบ
+ทำระบบ error reporting ทั้ง runtime และ parsing ให้เรียบร้อย
+จัดระบบ ให้ฟังก์ชันที่ผู้ใช้ระบุ ต้องอยู่ในคลาส Callback
+เขียน unit test ให้กับ expression->calculate() และ executionnode->execute()
