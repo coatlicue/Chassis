@@ -3,6 +3,9 @@ namespace Chassis\Parser;
 
 include_once __DIR__."/Expecter.php";
 include_once __DIR__."/ExpectationTreeNode.php";
+include_once __DIR__."/../Intermediate/Cursor.php";
+
+use Chassis\Intermediate as I;
 
 const SC_STATE_IDLE = 1;
 const SC_STATE_INITIALIZING = 2;
@@ -50,9 +53,10 @@ abstract class Scanner implements IScanner
 	public $state;
 	/**
 	 * ตำแหน่งปัจจุบัน
-	 * @var int
+	 * @var I\Cursor
 	 */
-	public $position;
+	public $cursor;
+	//public $position;
 	/**
 	 * Scanner ที่เป็นแม่
 	 * @var IScanner
@@ -72,16 +76,6 @@ abstract class Scanner implements IScanner
 	 * @var Expecter
 	 */
 	protected $expecter;
-	/**
-	 * เลขบรรทัดปัจจุบัน
-	 * @var int
-	 */
-	public $current_line = 1;
-	/**
-	 * ตำแหน่งของตัวอักษรปัจจุบันในบรรทัด
-	 * @var int
-	 */
-	public $current_offset = -1;
 	
 	/**
 	 * ส่วนนี้จะใช้สำหรับการกราดตรวจตัวอักษร ซึ่งถูกเรียกขึ้นมาทำงานเมื่อมีการเลื่อนตำแหน่งของ scanner ไป 1 ตำแหน่ง
@@ -109,14 +103,14 @@ abstract class Scanner implements IScanner
 	 */
 	public function get_current_char()
 	{
-		return $this->get_char_at($this->position);
+		return $this->get_char_at($this->cursor->position);
 	}
 	/**
 	 * ชำเลืองมองตัวอักษรตัวหน้า
 	 */
 	public function peek_ahead()
 	{
-		return $this->get_char_at($this->position + 1);
+		return $this->get_char_at($this->cursor->position + 1);
 	}
 	
 	/**
@@ -134,17 +128,7 @@ abstract class Scanner implements IScanner
 	{
 		if($this->peek_ahead() !== SC_END && $this->state === SC_STATE_WORKING)
 		{
-			$this->position++;
-			//if($this->get_current_char() === "\r") return;
-			if($this->get_current_char() === "\n")
-			{
-				$this->current_line++;
-				$this->current_offset = 0;
-			}
-			else
-			{
-				$this->current_offset++;
-			}
+			$this->cursor->feed($this->get_current_char());
 			$this->expecter->advance(); //สั่งให้ expecter เคลื่อนไปข้างหน้า
 			$this->_scan();
 		}
@@ -166,7 +150,7 @@ abstract class Scanner implements IScanner
 	 */
 	public function advance_to($i)
 	{
-		$n = $i - $this->position;
+		$n = $i - $this->cursor->position;
 		if($n > 0)
 		{
 			$this->advance_by($n);
@@ -177,7 +161,7 @@ abstract class Scanner implements IScanner
 	 */
 	public function advance_here()
 	{
-		$this->advance_to($this->parent->position);
+		$this->advance_to($this->parent->cursor->position);
 	}
 	
 	/**
@@ -234,10 +218,8 @@ abstract class Scanner implements IScanner
 		{
 			$this->child = null;
 			$this->error = null;
-			$this->position = $this->parent->position;
+			$this->cursor = clone $this->parent->cursor;
 			$this->state = SC_STATE_IDLE;
-			$this->current_line = $this->parent->current_line;
-			$this->current_offset = $this->parent->current_offset;
 		}
 	}
 	
@@ -290,8 +272,6 @@ class Error
 	 */
 	public function __construct($scanner, $code, $message = null)
 	{
-		$this->line = $scanner->current_line;
-		$this->offset = $scanner->current_offset;
 		$this->code = $code;
 		$this->message = $message;
 	}
@@ -417,16 +397,15 @@ class TestScanner extends Scanner
 
 class TestScannerB extends Scanner
 {
-	private $summary = "";
+	private $summary = [];
 	
 	protected function _scan()
 	{
-		$this->summary .= $this->state;
+		array_push($this->summary, $this->state);
 	}
 	
 	protected function _summarize()
 	{
-		$this->summary .= "#";
 		return $this->summary;
 	}
 	
@@ -437,18 +416,30 @@ class TestScannerB extends Scanner
 		$s->initialize();
 		$s->advance_to(strlen($str) - 1);
 		$s->finalize();
-		assert($s->summarize() === "1222222224#", "scanner state test");
+		$states = $s->summarize();
+		
+		assert($states[0] === SC_STATE_INITIALIZING, "#1");
+		assert($states[1] === SC_STATE_WORKING, "#2");
+		assert($states[2] === SC_STATE_WORKING, "#3");
+		assert($states[3] === SC_STATE_WORKING, "#4");
+		assert($states[4] === SC_STATE_WORKING, "#5");
+		assert($states[5] === SC_STATE_WORKING, "#6");
+		assert($states[6] === SC_STATE_WORKING, "#7");
+		assert($states[7] === SC_STATE_WORKING, "#8");
+		assert($states[8] === SC_STATE_WORKING, "#9");
+		assert($states[9] === SC_STATE_FINALIZING, "#10");
 	}
 }
 
 class DummyScannerDriver
 {
 	private $str;
-	public $position = -1;
+	public $cursor;
 	
 	public function __construct($str)
 	{
 		$this->str = $str;
+		$this->cursor = new I\Cursor();
 	}
 	
 	public function get_char_at($i)

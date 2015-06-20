@@ -390,7 +390,7 @@ class ExecutionScanner_tagReadState extends State
 		$c = $this->parent_scanner->get_current_char();
 		if($c === " " || $c === "\r" || $c === "\n")
 		{
-			$this->last_space_pos = $this->parent_scanner->position;
+			$this->last_space_pos = $this->parent_scanner->cursor->position;
 			//skip
 		}
 		else
@@ -496,7 +496,7 @@ class ExecutionScanner_tagReadState extends State
 				break;
 		}
 	
-		$this->blank_scanner->position = $position;
+		$this->blank_scanner->cursor->position = $position;
 	}
 	/**
 	 * บันทึกข้อมูลใน blank ที่อ่านได้

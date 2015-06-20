@@ -2,6 +2,9 @@
 namespace Chassis\Parser;
 
 include_once __DIR__."/Scanner.php";
+include_once __DIR__."/../Intermediate/Cursor.php";
+
+use Chassis\Intermediate as I;
 
 class ScannerDriver implements IScanner
 {
@@ -19,9 +22,9 @@ class ScannerDriver implements IScanner
 	
 	/**
 	 * ตำแหน่งเริ่มต้น
-	 * @var int
+	 * @var I\Cursor
 	 */
-	public $position = -1;
+	public $cursor;
 	
 	/**
 	 * error ล่าสุดที่เกิดจากการทำงานของ scanner
@@ -29,9 +32,13 @@ class ScannerDriver implements IScanner
 	 */
 	public $last_error;
 	
-	public $current_line = 1;
-	public $current_offset = -1;
-	
+	public function __construct()
+	{
+		$this->cursor = new I\Cursor();
+	}
+	/**
+	 * เริ่มการทำงาน
+	 */
 	public function start()
 	{
 		$this->child->reset();
