@@ -7,18 +7,28 @@ use Chassis\Intermediate as I;
 include_once "Parser/ExecutionParserImplemented.php";
 include_once "Intermediate/Context.php";
 
+$arr = [];
+for($i=1; $i<=10000; $i++)
+{
+	array_push($arr, "$i");
+}
+Context::set_var(I\VAR_CHANNEL_NORMAL, "arr", $arr, true);
+
+$d = new ScannerDriver();
+$d->str = "{@foreach i in arr}{i}{/@foreach}";
+/*
 for($i=1; $i<=10000; $i++)
 {
 	Context::set_var(I\VAR_CHANNEL_NORMAL, "var$i", "a", true);
 }
 
-$d = new ScannerDriver();
 for($i=1; $i<=10000; $i++)
 {
 	$d->str .= "{var".$i."},";
 }
 
 echo "Length: ".strlen($d->str)."<br>";
+*/
 
 $s = new ExecutionScanner($d);
 
