@@ -77,18 +77,18 @@ class Expecter
 		{
 			//ตรวจสอบโนดย่อยลงไปอีก
 			if(count($child->children) === 1 && $child->children[0]->type === ETN_TYPE_TERMINATION)
-			{
+			{ //ถ้าโนดย่อยของโนดที่เลือกขึ้นมาทำงาน มีเฉพาะ termination เท่านั้น
 				$this->report(EXP_STATE_SUCCEED, $child->children[0]->tag);
 			}
 			else
-			{
+			{ //ถ้าไม่ใช่ ให้มองไปที่ตัวอักษรถัดไป
 				$next_char = $this->scanner->peek_ahead();
 				if($child->retrieve(ETN_TYPE_CHARACTER, $next_char))
-				{
+				{ //ถ้าโนดย่อยของโนดที่เลือกขึ้นมาทำงาน มีตัวอักษรถัดไป
 					$this->report(EXP_STATE_EXPECTING);
 				}
 				else if($term = $child->retrieve(ETN_TYPE_TERMINATION))
-				{
+				{ //ถ้าไม่มีตัวอักษรถัดไป แต่มีตัวจบ
 					$this->report(EXP_STATE_SUCCEED, $term->tag);
 				}
 				else
