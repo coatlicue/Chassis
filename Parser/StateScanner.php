@@ -20,7 +20,7 @@ abstract class State
 	 * @param Transition $transition Transition ที่ส่งมายัง state นี้
 	 * @param array $exp_result อาร์เรย์เก็บข้อมูลเกี่ยวกับการคาดหมายสัญลักษณ์ ประกอบด้วยคีย์ต่อไปนี้ : succeed, symbol, tag
 	 */
-	public abstract function operation($transition, $exp_result);
+	protected abstract function operation($transition, $exp_result);
 	/**
 	 * expectation tree สำหรับคาดหมายสัญลักษณ์ก่อนที่จะเข้าสู่ state นี้
 	 * @var ExpectationTreeNode

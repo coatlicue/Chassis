@@ -43,6 +43,10 @@ const EXS_ERROR_REQUIRED_EVAL_DELIMITER = 21;
 const EXS_ERROR_REQUIRED_KEYWORD = 22; //เกิดขึ้นเมื่อผู้ใช้ไม่ได้ระบุคีย์เวิร์ดของแท็ก
 const EXS_ERROR_UNEXPECTED_CURLY_BRACE = 23; //เก็บขึ้นเมื่อผู้ใช้ระบุพารามิเตอร์ของแท็กไม่ครบ (เช่น {@for i from x} <- ไม่มี to)
 
+const EXS_STATE_GROUND = 0;
+const EXS_STATE_EVAL_READ = 1;
+const EXS_STATE_TAG_READ = 2;
+
 class ExecutionScanner extends StateScanner
 {
 	/**
@@ -51,88 +55,17 @@ class ExecutionScanner extends StateScanner
 	 */
 	public $exec_builder;
 	
-	public $state_ground;
-	private $state_eval_read;
-	private $state_tag_read;
-	
-	/**
-	 * transition ไปยัง eval read state
-	 * @var Transition
-	 */
-	private $transition_eval_read;
-	
 	public function __construct($parent)
 	{
 		$this->exec_builder = new ExecutionTreeBuilder();
 		
-		$this->state_ground = new State();
-		$this->state_ground->intermediate_mode = STATE_PRE_INTERMEDIATE;
-		$this->state_ground->expectation_tree = new ExpectationTreeNode(ETN_TYPE_INITIATION);
-		$this->state_ground->expectation_tree->add_str("{", EXS_EVAL);
+		$this->add_state(EXS_STATE_GROUND, new ExecutionScanner_GroundState());
+		$this->add_state(EXS_STATE_EVAL_READ, new ExecutionScanner_EvalReadState());
+		$this->add_state(EXS_STATE_TAG_READ, new ExecutionScanner_TagReadState());
 		
-		$open_tag = $this->state_ground->expectation_tree->add_str("{@", null, false)
-			->add_list(BlockInstructions::$list);
-		
-		$this->state_ground->operation = [$this, "_ground_state"];
-		$this->initial_state = $this->state_ground;
-		
-		$this->state_eval_read = new ExecutionScanner_evalReadState($this);
-		$this->state_tag_read = new ExecutionScanner_tagReadState($this);
-		
-		$this->transition_eval_read = new Transition($this->state_eval_read);
+		$this->initial_state = EXS_STATE_GROUND;
 		
 		parent::__construct($parent);
-	}
-	
-	/**
-	 * 
-	 * @param Transition $transition
-	 * @param array $exp_result
-	 */
-	public function _ground_state($transition, $exp_result)
-	{
-		if($this->state === SC_STATE_WORKING)
-		{
-			if($exp_result['succeed'])
-			{
-				$tag = $exp_result['tag'];
-				if($tag instanceof I\BlockInstruction)
-				{
-					if($this->exec_builder->current_block->block_instruction !== I\BLOCKNODE_ROOT)
-					{
-						$tag_name = $this->exec_builder->current_block->block_instruction->name;
-						$this->state_ground->expectation_tree->remove_list(["{/@$tag_name}"]);
-					}
-					$this->exec_builder->open_block($tag);
-					if(!$tag->no_close)
-					{
-						$this->state_ground->expectation_tree->add_str("{/@$tag->name}", EXS_CLOSE_TAG);
-					}
-					//ส่งต่อไปยัง tag read state โดยใช้เมธอด tag_read_transfer และเลือกให้ keyword node ของ block instruction ที่อ่านได้เป็น next_keyword_node
-					$this->state_tag_read->current_keyword_node = $tag->keyword_tree;
-					$this->state_ground->next_transition = new Transition($this->state_tag_read);
-				}
-				elseif($tag === EXS_EVAL)
-				{
-					$this->state_ground->next_transition = $this->transition_eval_read;
-				}
-				elseif($tag === EXS_CLOSE_TAG)
-				{
-					$tag_name = $this->exec_builder->current_block->block_instruction->name;
-					$this->state_ground->expectation_tree->remove_list(["{/@$tag_name}"]);
-					$this->exec_builder->close_block();
-					if($this->exec_builder->current_block->block_instruction !== I\BLOCKNODE_ROOT)
-					{	
-						$tag_name = $this->exec_builder->current_block->block_instruction->name;
-						$this->state_ground->expectation_tree->add_str("{/@$tag_name}", EXS_CLOSE_TAG);
-					}
-				}
-			}
-			else
-			{
-				$this->exec_builder->add_text($exp_result['symbol']);
-			}
-		}
 	}
 	
 	protected function _summarize()
@@ -227,7 +160,63 @@ class ExecutionScanner extends StateScanner
 	}
 }
 
-class ExecutionScanner_evalReadState extends State
+class ExecutionScanner_GroundState extends State
+{
+	public function __construct()
+	{
+		$this->intermediate_mode = STATE_PRE_INTERMEDIATE;
+		$this->expectation_tree = new ExpectationTreeNode(ETN_TYPE_INITIATION);
+		$this->expectation_tree->add_str("{", EXS_EVAL);
+		$this->expectation_tree->add_str("{@", null, false)->add_list(BlockInstructions::$list);
+	}
+	
+	public function operation($transition, $exp_result)
+	{
+		if($this->scanner->state === SC_STATE_WORKING)
+		{
+			if($exp_result['succeed'])
+			{
+				$tag = $exp_result['tag'];
+				if($tag instanceof I\BlockInstruction)
+				{
+					if($this->scanner->exec_builder->current_block->block_instruction !== I\BLOCKNODE_ROOT)
+					{
+						$tag_name = $this->scanner->exec_builder->current_block->block_instruction->name;
+						$this->expectation_tree->remove_list(["{/@$tag_name}"]);
+					}
+					$this->scanner->exec_builder->open_block($tag);
+					if(!$tag->no_close)
+					{
+						$this->expectation_tree->add_str("{/@$tag->name}", EXS_CLOSE_TAG);
+					}
+					//ส่งต่อไปยัง tag read state โดยแนบ keyword_tree ไปด้วย
+					$this->next_transition = new Transition(EXS_STATE_TAG_READ, $tag->keyword_tree);
+				}
+				elseif($tag === EXS_EVAL)
+				{
+					$this->next_transition = new Transition(EXS_STATE_EVAL_READ);
+				}
+				elseif($tag === EXS_CLOSE_TAG)
+				{
+					$tag_name = $this->scanner->exec_builder->current_block->block_instruction->name;
+					$this->expectation_tree->remove_list(["{/@$tag_name}"]);
+					$this->scanner->exec_builder->close_block();
+					if($this->scanner->exec_builder->current_block->block_instruction !== I\BLOCKNODE_ROOT)
+					{
+						$tag_name = $this->scanner->exec_builder->current_block->block_instruction->name;
+						$this->expectation_tree->add_str("{/@$tag_name}", EXS_CLOSE_TAG);
+					}
+				}
+			}
+			else
+			{
+				$this->scanner->exec_builder->add_text($exp_result['symbol']);
+			}
+		}
+	}
+}
+
+class ExecutionScanner_EvalReadState extends State
 {
 	/**
 	 * ระบุว่า ขณะนี้กำลังอ่าน modifier อยู่หรือไม่
@@ -244,25 +233,8 @@ class ExecutionScanner_evalReadState extends State
 	 * @var ExpressionScanner
 	 */
 	private $exp_scanner;
-	/**
-	 * Scanner ที่เป็นเจ้าของ state นี้
-	 * @var ExecutionScanner
-	 */
-	private $scanner;
-	/**
-	 * Transition ไปยัง ground state
-	 * @var Transition
-	 */
-	private $ground_transition;
 	
-	public function __construct($scanner)
-	{
-		$this->scanner = $scanner;
-		$this->operation = [$this, "state"];
-		$this->ground_transition = new Transition($this->scanner->state_ground);
-	}
-	
-	public function state($transition)
+	protected function operation($transition, $exp_result)
 	{
 		if($this->scanner->state === SC_STATE_WORKING)
 		{
@@ -278,9 +250,7 @@ class ExecutionScanner_evalReadState extends State
 				}
 				$this->exp_scanner->initialize();
 			}
-			else	
-			{
-				if($this->scanner->get_current_char() == " ")
+			elseif($this->scanner->get_current_char() == " ")
 				{
 					//no action.
 				}
@@ -306,7 +276,7 @@ class ExecutionScanner_evalReadState extends State
 					$this->scanner->exec_builder->add_evaluation($exp, $mod_flag);
 			
 					//ส่งกลับไปยัง ground state
-					$this->next_transition = $this->ground_transition;
+					$this->next_transition = new Transition(EXS_STATE_GROUND);
 				}
 				elseif($this->reading_modifier)
 				{
@@ -325,7 +295,6 @@ class ExecutionScanner_evalReadState extends State
 						$this->scanner->report_error($this->exp_scanner->error);
 					}
 				}
-			}
 		}
 		else
 		{
@@ -334,7 +303,7 @@ class ExecutionScanner_evalReadState extends State
 	}
 }
 
-class ExecutionScanner_tagReadState extends State
+class ExecutionScanner_TagReadState extends State
 {
 	/**
 	 * ExpressionScanner ที่เก็บไว้ใช้
@@ -369,28 +338,21 @@ class ExecutionScanner_tagReadState extends State
 	private $stored_keyword;
 	
 	/**
-	 * execution scanner ที่เป็นเจ้าของ state นี้
-	 * @var ExecutionScanner
-	 */
-	private $parent_scanner;
-	
-	public function __construct($parent)
-	{
-		$this->parent_scanner = $parent;
-		$this->operation = [$this, "operate"];
-	}
-	
-	/**
-	 * @todo refractor the code.
+	 * @todo refractor these code.
 	 * @param Transition $transition
 	 */
-	public function operate($transition)
+	protected function operation($transition, $exp_result)
 	{
-		if($transition->first) return;
-		$c = $this->parent_scanner->get_current_char();
+		if($transition->first)
+		{
+			$this->current_keyword_node = $transition->data;
+			$this->stored_keyword = "";
+			return;
+		}
+		$c = $this->scanner->get_current_char();
 		if($c === " " || $c === "\r" || $c === "\n")
 		{
-			$this->last_space_pos = $this->parent_scanner->cursor->position;
+			$this->last_space_pos = clone $this->scanner->cursor;
 			//skip
 		}
 		else
@@ -400,7 +362,7 @@ class ExecutionScanner_tagReadState extends State
 				$this->blank_scanner->advance_here();
 				if($this->blank_scanner->state === SC_STATE_DEAD)
 				{
-					$this->parent_scanner->report_error($this->blank_scanner->error);
+					$this->scanner->report_error($this->blank_scanner->error);
 				}
 			}
 			elseif($c === "}")
@@ -408,17 +370,17 @@ class ExecutionScanner_tagReadState extends State
 				$this->_save_blank_data();
 				if($this->current_keyword_node->search(KN_TYPE_TERMINATION))
 				{
-					$this->next_transition = new Transition($this->parent_scanner->state_ground);
+					$this->next_transition = new Transition(EXS_STATE_GROUND);
 				}
 				else
 				{
-					$this->parent_scanner->report_error(new Error($this->parent_scanner, EXS_ERROR_UNEXPECTED_CURLY_BRACE));
+					$this->scanner->report_error(new Error($this->scanner, EXS_ERROR_UNEXPECTED_CURLY_BRACE));
 				}
 			}
 			else
 			{
 				$this->stored_keyword .= $c;
-				$p = $this->parent_scanner->peek_ahead();
+				$p = $this->scanner->peek_ahead();
 				if($p === " " || $p === "\r" || $p === "\n" || $p === "}")
 				{
 					//เมื่อพบกับ whitespace หรือตัวจบ (}) ให้เอา keyword ที่อ่านได้ไปค้นหาว่ามีอยู่จริงหรือไม่ ถ้าไม่มีก็ให้ถือว่าเป็นช่องว่าง
@@ -426,7 +388,7 @@ class ExecutionScanner_tagReadState extends State
 					$this->stored_keyword = "";
 					if($node)
 					{
-						$this->parent_scanner->exec_builder->add_block_header($node->target_header, true);
+						$this->scanner->exec_builder->add_block_header($node->target_header, true);
 						$this->_save_blank_data();
 						$this->current_keyword_node = $node;
 					}
@@ -437,7 +399,7 @@ class ExecutionScanner_tagReadState extends State
 							$this->blank_scanner->advance_here();
 							if($this->blank_scanner->state === SC_STATE_DEAD)
 							{
-								$this->parent_scanner->report_error($this->blank_scanner->error);
+								$this->scanner->report_error($this->blank_scanner->error);
 								return;
 							}
 						}
@@ -448,13 +410,13 @@ class ExecutionScanner_tagReadState extends State
 							$this->blank_scanner->advance_here();
 							if($this->blank_scanner->state === SC_STATE_DEAD)
 							{
-								$this->parent_scanner->report_error($this->blank_scanner->error);
+								$this->scanner->report_error($this->blank_scanner->error);
 								return;
 							}
 						}
 						else
 						{
-							$this->parent_scanner->report_error(new Error($this->parent_scanner, EXS_ERROR_REQUIRED_KEYWORD));
+							$this->scanner->report_error(new Error($this->scanner, EXS_ERROR_REQUIRED_KEYWORD));
 						}
 					}
 				}
@@ -466,14 +428,14 @@ class ExecutionScanner_tagReadState extends State
 	 * ขอใช้งาน blank scanner
 	 * @param int $type ชนิดของ blank
 	 */
-	private function _use_blank_scanner($type, $position)
+	private function _use_blank_scanner($type, $cursor)
 	{
 		switch($type)
 		{
 			case KN_BLANK_EXP:
 				if($this->blank_exp_scanner === null)
 				{
-					$this->blank_exp_scanner = new ExpressionScanner($this->parent_scanner);
+					$this->blank_exp_scanner = new ExpressionScanner($this->scanner);
 				}
 				else
 				{
@@ -485,7 +447,7 @@ class ExecutionScanner_tagReadState extends State
 			case KN_BLANK_VAR:
 				if($this->blank_var_scanner === null)
 				{
-					$this->blank_var_scanner = new IdentifierScanner($this->parent_scanner);
+					$this->blank_var_scanner = new IdentifierScanner($this->scanner);
 				}
 				else
 				{
@@ -496,7 +458,7 @@ class ExecutionScanner_tagReadState extends State
 				break;
 		}
 	
-		$this->blank_scanner->cursor->position = $position;
+		$this->blank_scanner->cursor = $cursor;
 	}
 	/**
 	 * บันทึกข้อมูลใน blank ที่อ่านได้
@@ -508,12 +470,12 @@ class ExecutionScanner_tagReadState extends State
 			$this->blank_scanner->finalize();
 			if($this->blank_scanner->state === SC_STATE_DEAD)
 			{
-				$this->parent_scanner->report_error($this->blank_scanner->error);
+				$this->scanner->report_error($this->blank_scanner->error);
 				return;
 			}
-				$this->parent_scanner->exec_builder->add_block_header
-					($this->current_keyword_node->target_header, $this->blank_scanner->summarize());
-				$this->blank_scanner = null;
+			$this->scanner->exec_builder->add_block_header
+				($this->current_keyword_node->target_header, $this->blank_scanner->summarize());
+			$this->blank_scanner = null;
 		}
 	}
 }

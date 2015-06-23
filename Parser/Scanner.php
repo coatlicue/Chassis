@@ -203,7 +203,7 @@ abstract class Scanner implements IScanner
 	 * รายงานผลความผิดพลาด
 	 * @param IError #error ความผิดพลาดที่จะรายงาน
 	 */
-	protected function suicide($error)
+	public function suicide($error)
 	{
 		$this->error = $error;
 		$this->state = SC_STATE_DEAD;
@@ -236,6 +236,51 @@ abstract class Scanner implements IScanner
 		}
 	}
 }
+/**
+ * เป็นคลาสสำหรับให้บริการ นำ scanner กลับมาใช้ใหม่
+ * @author acer-pc
+ *
+ */
+class ScannerReuseService
+{
+	/**
+	 * callback สำหรับใช้สร้าง scanner
+	 * @var callable
+	 */
+	private $create_scanner;
+	/**
+	 * เก็บ scanner ที่สร้างขึ้นมาแล้ว
+	 * @var Scanner
+	 */
+	private $scanner;
+	/**
+	 * 
+	 * @param callable $create_scanner callback สำหรับใช้สร้าง scanner
+	 */
+	public function __construct($create_scanner)
+	{
+		$this->create_scanner = $create_scanner;
+	}
+	
+	/**
+	 * เรียกใช้งาน scanner
+	 * @return Scanner
+	 */
+	public function use_scanner($initialize = true)
+	{
+		if($this->scanner === null)
+		{
+			$this->scanner = call_user_func($this->create_scanner);
+		}
+		else
+		{
+			$this->scanner->reset();
+		}
+		if($initialize) $this->scanner->initialize();
+		return $this->scanner;
+	}
+}
+
 /**
  * เป็นคลาสสำหรับรายงาน error ออกมาจาก scanner
  * @author acer-pc

@@ -98,286 +98,31 @@ class ExclusiveExpressionBuilder extends ExpressionBuilder
 	}
 }
 
+const EXPSC_STATE_GROUND = 0;
+const EXPSC_STATE_STR_READ = 1;
+const EXPSC_STATE_CLOSURE_READ = 2;
+const EXPSC_STATE_ID_READ = 3;
+const EXPSC_STATE_NUMBER_READ = 4;
+const EXPSC_STATE_ID_EXP_READ = 5;
+
 class ExpressionScanner extends StateScanner implements IBlankScanner
 {
-	private $exp_builder;
-
-	private $ground;
-	private $str_read;
-	private $closure_read;
-	private $id_read;
-	private $number_read;
-	private $id_exp_read;
+	public $exp_builder;
+	public $exp_scanner_reuse;
 
 	public function __construct($parent)
 	{
 		$this->exp_builder = new ExclusiveExpressionBuilder();
+		$this->exp_scanner_reuse = new ScannerReuseService(function() { return new ExpressionScanner($this); });
 
-		$this->ground = new State();
-		$this->str_read = new State();
-		$this->closure_read = new State();
-		$this->id_read = new State();
-		$this->number_read = new State();
-		$this->oper_read = new State();
-		$this->id_exp_read = new State();
+		$this->add_state(EXPSC_STATE_GROUND, new ExpressionScanner_GroundState());
+		$this->add_state(EXPSC_STATE_STR_READ, new ExpressionScanner_StrReadState());
+		$this->add_state(EXPSC_STATE_ID_READ, new ExpressionScanner_IdReadState());
+		$this->add_state(EXPSC_STATE_NUMBER_READ, new ExpressionScanner_NumReadState());
+		$this->add_state(EXPSC_STATE_CLOSURE_READ, new ExpressionScanner_ClosureReadState());
+		$this->add_state(EXPSC_STATE_ID_EXP_READ, new ExpressionScanner_IdExpReadState());
 
-		$this->initial_state = $this->ground;
-
-		//-----declaring central variable for every state.-----
-		$tmp_str = "";
-		$sub_exp_scanner = null; //ตัวสแกนนิพจน์ย่อย **เมื่อใช้งานเสร็จแล้วไม่ต้อง reset และ initialize**
-		$use_sub_exp_scanner = function() use (&$sub_exp_scanner)
-		{
-			if($sub_exp_scanner === null)
-			{
-				$sub_exp_scanner = new ExpressionScanner($this);
-			}
-			else
-			{
-				$sub_exp_scanner->reset();
-			}
-			$sub_exp_scanner->initialize();
-		};
-
-		//-----constructing the ground state.-----
-		$whitespaces = [" " => "ws", "\n" => "ws", "\r\n" => "ws"];
-		$str_delimiter = ["\"" => "str", "'" => "str"];
-		$operators = OperList::$oper_str;
-
-		$this->ground->expectation_tree =
-		ExpectationTreeNode::create(array_merge($whitespaces, $str_delimiter, $operators));
-		$this->ground->intermediate_mode = STATE_PRE_INTERMEDIATE;
-		$this->ground->operation = function($transition, $exp_result)
-		{
-			if($this->state === P\SC_STATE_WORKING)
-			{
-				//expectation tag.
-				$exp_tag = $exp_result['tag'];
-				$exp_sym = $exp_result['symbol'];
-				if($exp_tag === "ws") //detecting whitespace.
-				{
-					//no action
-				}
-				elseif($exp_tag === "str") //detecting string delimiter.
-				{
-					$this->ground->next_transition = new Transition($this->str_read);
-				}
-				elseif($exp_tag instanceof I\Operator 
-						|| $exp_tag instanceof I\OperatorPolymorphism) //detecting operator.
-				{
-					$this->_add_operator($exp_tag);
-				}
-				elseif($exp_sym === "(") //closure
-				{
-					$this->ground->next_transition = new Transition($this->closure_read);
-				}
-				elseif($exp_sym === "{") //เป็นชื่อตัวแปรที่ถูกระบุโดย expression (เช่น var1 มีค่าเท่ากับ {"var1"})
-				{
-					$this->ground->next_transition = new Transition($this->id_exp_read);
-				}
-				elseif(preg_match("/^[A-Za-z_]+$/", $exp_sym)) //identifier
-				{
-					$this->ground->next_transition = new Transition($this->id_read);
-				}
-				elseif(preg_match("/^[0-9]$/", $exp_sym)) //number
-				{
-					$this->ground->next_transition = new Transition($this->number_read);
-				}
-				else
-				{
-					$this->suicide(new Error($this, EP_ERROR_ILLEGAL_SYMBOL));
-				}
-			}
-			elseif ($this->state === P\SC_STATE_FINALIZING)
-			{
-				$this->exp_builder->flush();
-			}
-		};
-
-		//----- string read state -----
-		$str_delimiter = "";
-		$str_escaping = false;
-		$str_escaping_guide = new StringEscapingGuide();
-		$this->str_read->operation = function($transition)
-		use (&$tmp_str, &$str_delimiter, &$str_escaping, &$str_escaping_guide)
-		{
-			if($this->state === P\SC_STATE_WORKING)
-			{
-				if($transition->first)
-				{
-					$str_delimiter = $this->get_current_char();
-				}
-				else if($str_escaping)
-				{
-					if($e = $str_escaping_guide->feed($this->get_current_char(), $this->peek_ahead()))
-					{
-						$str_escaping = false;
-						$tmp_str .= $e;
-					}
-				}
-				else if($this->get_current_char() === $str_delimiter)
-				{
-					$this->_add_expression(new Literal($tmp_str, I\LITERAL_STRING));
-						
-					$this->str_read->next_transition = new Transition($this->ground);
-					$tmp_str = "";
-				}
-				else if($this->get_current_char() === "\\")
-				{
-					$str_escaping = true;
-				}
-				else
-				{
-					$tmp_str .= $this->get_current_char();
-				}
-			}
-			else
-			{
-				$this->suicide(new Error($this, EP_ERROR_EXPECTED_STR_DELIMITER));
-			}
-		};
-
-		//----- identifier read state-----
-		$this->id_read->operation = function($transition)
-		use (&$tmp_str)
-		{
-			$tmp_str .= $this->get_current_char();
-			//peek at the next char. if it isn't letter, digit or underscore, end this state.
-			if(!preg_match("/^[A-Za-z0-9_]$/", $this->peek_ahead()))
-			{
-				if(strtolower($tmp_str) === "true" || strtolower($tmp_str) === "false")
-				{
-					$this->_add_expression(new Literal($tmp_str, I\LITERAL_BOOLEAN));
-				}
-				else
-				{
-					$this->exp_builder->add_expression(new VariableExpression($tmp_str));
-				}
-				$this->id_read->next_transition = new Transition($this->ground);
-				$tmp_str = "";
-			}
-		};
-
-		//-----number read state-----
-		$after_dot = false;
-		$this->number_read->operation = function($transition) use (&$tmp_str, &$after_dot)
-		{
-			$tmp_str .= ($c = $this->get_current_char());
-			if($c === ".") $after_dot = true;
-			if(!preg_match("/^[0-9".(!$after_dot ? preg_quote(".") : "")."]$/", $this->peek_ahead()))
-			{
-				$this->_add_expression(new Literal($tmp_str, I\LITERAL_NUMBER));
-				$this->number_read->next_transition = new Transition($this->ground);
-				$tmp_str = "";
-			}
-		};
-
-		//----- closure read state -----
-		$closure = null;
-		//เอาไว้เพิ่ม exp ใหม่ที่อ่านได้ลงใน closure
-		$add_exp = function() use (&$sub_exp_scanner, &$closure)
-		{
-			$sub_exp_scanner->finalize();
-			//ถ้าหาก Scanner ตัวลูกเกิดความผิดพลาดขึ้น ก็ให้หยุดการทำงาน
-			if($sub_exp_scanner->state === P\SC_STATE_DEAD)
-			{
-				$this->suicide($sub_exp_scanner->error);
-			}
-			else
-			{
-				$new_exp = $sub_exp_scanner->summarize();
-				if($new_exp !== null) $closure->add_expr($new_exp);
-			}
-		};
-		$this->closure_read->operation = function($transition)
-		use (&$sub_exp_scanner, &$closure, &$add_exp, $use_sub_exp_scanner)
-		{
-			$c = "";
-			if($this->state === P\SC_STATE_WORKING)
-			{
-				if($transition->first)
-				{
-					$closure = new Closure();
-					$use_sub_exp_scanner();
-				}
-				elseif ($sub_exp_scanner->in_ground_state()
-						&& (($c = $this->get_current_char()) === ",") || $c === ")")
-				{
-					switch ($c)
-					{
-						case ",":
-							$add_exp();
-							$sub_exp_scanner->reset();
-							$sub_exp_scanner->initialize();
-							break;
-						case ")":
-							$add_exp();
-							$this->_add_expression($closure);
-								
-							$closure = null;
-								
-							$this->closure_read->next_transition = new Transition($this->ground);
-							break;
-					}
-				}
-				else
-				{
-					$sub_exp_scanner->advance_here();
-					//ถ้าหาก Scanner ตัวลูกเกิดความผิดพลาดขึ้น ก็ให้หยุดการทำงาน
-					if($sub_exp_scanner->state === P\SC_STATE_DEAD)
-					{
-						$this->suicide($sub_exp_scanner->error);
-					}
-				}
-			}
-			else
-			{
-				$sub_exp_scanner->finalize();
-				//ถ้าหาก Scanner ตัวลูกเกิดความผิดพลาดขึ้น ก็ให้หยุดการทำงาน
-				if($sub_exp_scanner->state === P\SC_STATE_DEAD)
-				{
-					$this->suicide($sub_exp_scanner->error);
-				}
-				else
-				{
-					$this->suicide(new Error($this, EP_ERROR_EXPECTED_CLOSE_PARENTHESIS));
-				}
-			}
-		};
-
-		//-----expression identifier read state-----
-		$this->id_exp_read->operation = function($transition)
-		use(&$sub_exp_scanner, &$use_sub_exp_scanner)
-		{
-			if($this->state === P\SC_STATE_WORKING)
-			{
-				if($transition->first)
-				{
-					$use_sub_exp_scanner();
-				}
-				elseif($this->get_current_char() === "}"
-						&& $sub_exp_scanner->in_ground_state())
-				{ //เมื่อพบตัวอักษร } ให้หยุดการอ่านนิพจน์ และเพิ่ม VariableExpression ลงใน expressionBuilder
-					$sub_exp_scanner->finalize();
-					$this->_add_expression(
-							new VariableExpression($sub_exp_scanner->summarize()));
-					$this->id_exp_read->next_transition = new Transition($this->ground);
-				}
-				else
-				{ //อ่านต่อไป
-					$sub_exp_scanner->advance_here();
-					//ถ้าหาก Scanner ตัวลูกเกิดความผิดพลาดขึ้น ก็ให้หยุดการทำงาน
-					if($sub_exp_scanner->state === P\SC_STATE_DEAD)
-					{
-						$this->suicide($sub_exp_scanner->error);
-					}
-				}
-			}
-			else
-			{
-				$this->suicide(new Error($this, EP_ERROR_EXPECTED_CLOSE_CURLY_BRACE));
-			}
-		};
+		$this->initial_state = EXPSC_STATE_GROUND;
 
 		parent::__construct($parent);
 	}
@@ -393,7 +138,7 @@ class ExpressionScanner extends StateScanner implements IBlankScanner
 	 */
 	public function in_ground_state()
 	{
-		return $this->get_next_state() === $this->ground;
+		return $this->get_next_state() === EXPSC_STATE_GROUND;
 	}
 	/**
 	 * (non-PHPdoc)
@@ -425,7 +170,7 @@ class ExpressionScanner extends StateScanner implements IBlankScanner
 	 * เพิ่มนิพจน์ลงใน ExpressionBuilder
 	 * @param Expression $exp
 	 */
-	private function _add_expression($exp)
+	public function _add_expression($exp)
 	{
 		try
 		{
@@ -440,7 +185,7 @@ class ExpressionScanner extends StateScanner implements IBlankScanner
 	 * เพิ่มตัวดำเนินการลงไปบน ExpressionBuilder
 	 * @param Operator $oper
 	 */
-	private function _add_operator($oper)
+	public function _add_operator($oper)
 	{
 		try
 		{
@@ -698,6 +443,312 @@ class ExpressionScanner extends StateScanner implements IBlankScanner
 		$e = $driver->start();
 		assert($e instanceof Literal && $e->type === I\LITERAL_STRING
 				&& $e->calculate() === "e\nt\x023", "#11.1");
+	}
+}
+
+abstract class ExpressionScannerState extends State
+{
+	/**
+	 * เก็บสตริงที่อ่านได้
+	 * @var string
+	 */
+	protected $consumed;
+	
+	public function enter($transition, $exp_result)
+	{
+		if($transition->first)
+		{
+			$this->consumed = "";
+		}
+		parent::enter($transition, $exp_result);
+	}
+}
+
+class ExpressionScanner_GroundState extends ExpressionScannerState
+{
+	const WHITESPACE = 1;
+	const STR_DELIMITER = 2;
+
+	public function __construct()
+	{
+		$whitespaces = [" " => self::WHITESPACE, "\n" => self::WHITESPACE, "\r\n" => self::WHITESPACE];
+		$str_delimiter = ["\"" => self::STR_DELIMITER, "'" => self::STR_DELIMITER];
+		$operators = OperList::$oper_str;
+
+		$this->expectation_tree = ExpectationTreeNode::create(array_merge($whitespaces, $str_delimiter, $operators));
+		$this->intermediate_mode = STATE_PRE_INTERMEDIATE;
+	}
+
+	public function operation($transition, $exp_result)
+	{
+		if($this->scanner->state === P\SC_STATE_WORKING)
+		{
+			//expectation tag.
+			$exp_tag = $exp_result['tag'];
+			$exp_sym = $exp_result['symbol'];
+			if($exp_tag === self::WHITESPACE) //detecting whitespace.
+			{
+				//no action
+			}
+			elseif($exp_tag === self::STR_DELIMITER) //detecting string delimiter.
+			{
+				$this->next_transition = new Transition(EXPSC_STATE_STR_READ);
+			}
+			elseif($exp_tag instanceof I\Operator
+					|| $exp_tag instanceof I\OperatorPolymorphism) //detecting operator.
+			{
+				$this->scanner->_add_operator($exp_tag);
+			}
+			elseif($exp_sym === "(") //closure
+			{
+				$this->next_transition = new Transition(EXPSC_STATE_CLOSURE_READ);
+			}
+			elseif($exp_sym === "{") //เป็นชื่อตัวแปรที่ถูกระบุโดย expression (เช่น var1 มีค่าเท่ากับ {"var1"})
+			{
+				$this->next_transition = new Transition(EXPSC_STATE_ID_EXP_READ);
+			}
+			elseif(preg_match("/^[A-Za-z_]+$/", $exp_sym)) //identifier
+			{
+				$this->next_transition = new Transition(EXPSC_STATE_ID_READ);
+			}
+			elseif(preg_match("/^[0-9]$/", $exp_sym)) //number
+			{
+				$this->next_transition = new Transition(EXPSC_STATE_NUMBER_READ);
+			}
+			else
+			{
+				$this->scanner->suicide(new Error($this, EP_ERROR_ILLEGAL_SYMBOL));
+			}
+		}
+		else
+		{
+			$this->scanner->exp_builder->flush();
+		}
+	}
+}
+class ExpressionScanner_StrReadState extends ExpressionScannerState
+{
+	/**
+	 * เก็บ delimiter เริ่มต้นของสตริงไว้
+	 * @var string
+	 */
+	public $delimiter = "";
+	/**
+	 * ระบุว่า ขณะนี้ยังอยู่ในระหว่างการ escape หรือไม่
+	 * @var boolean
+	 */
+	public $escaping = false;
+	/**
+	 * เก็บตัวนำทางในการ escape
+	 * @var StringEscapingGuide
+	 */
+	public $escaping_guide;
+
+	public function __construct()
+	{
+		$this->escaping_guide = new StringEscapingGuide();
+	}
+
+	public function operation($transition, $exp_result)
+	{
+		if($this->scanner->state === P\SC_STATE_WORKING)
+		{
+			if($transition->first) //ถ้าเริ่มทำงานเป็นครั้งแรก
+			{
+				$this->delimiter = $this->scanner->get_current_char();
+			}
+			else if($this->escaping)
+			{ //ถ้าในขณะนี้กำลัง escape อยู่
+				if($e = $this->escaping_guide->feed($this->scanner->get_current_char(), $this->scanner->peek_ahead()))
+				{ //เมื่อจบการ escape, ตัว escaping guide จะคืนค่าสตริงออกมา
+					$this->escaping = false;
+					$this->consumed .= $e;
+				}
+			}
+			else if($this->scanner->get_current_char() === $this->delimiter)
+			{ //เมื่อพบกับ delimiter
+				$this->scanner->_add_expression(new Literal($this->consumed, I\LITERAL_STRING));
+
+				$this->next_transition = new Transition(EXPSC_STATE_GROUND);
+			}
+			else if($this->scanner->get_current_char() === "\\")
+			{
+				$this->escaping = true;
+			}
+			else
+			{
+				$this->consumed .= $this->scanner->get_current_char();
+			}
+		}
+		else
+		{
+			$this->scanner->suicide(new Error($this, EP_ERROR_EXPECTED_STR_DELIMITER));
+		}
+	}
+}
+
+class ExpressionScanner_IdReadState extends ExpressionScannerState
+{
+	protected function operation($transition, $exp_result)
+	{
+		$this->consumed .= $this->scanner->get_current_char();
+		//peek at the next char. if it isn't letter, digit or underscore, end this state.
+		if(!preg_match("/^[A-Za-z0-9_]$/", $this->scanner->peek_ahead()))
+		{
+			if(strtolower($this->consumed) === "true" || strtolower($this->consumed) === "false")
+			{
+				$this->scanner->_add_expression(new Literal($this->consumed, I\LITERAL_BOOLEAN));
+			}
+			else
+			{
+				$this->scanner->_add_expression(new VariableExpression($this->consumed));
+			}
+			$this->next_transition = new Transition(EXPSC_STATE_GROUND);
+		}
+	}
+}
+
+class ExpressionScanner_NumReadState extends ExpressionScannerState
+{
+	/**
+	 * ระบุว่า ขณะนี้อยู่หลังจุดทศนิยมหรือไม่
+	 * @var boolean
+	 */
+	public $after_dot = false;
+
+	protected function operation($transition, $exp_result)
+	{
+		$this->consumed .= ($c = $this->scanner->get_current_char());
+		if($c === ".") $after_dot = true;
+		if(!preg_match("/^[0-9".(!$this->after_dot ? preg_quote(".") : "")."]$/", $this->scanner->peek_ahead()))
+		{
+			$this->scanner->_add_expression(new Literal($this->consumed, I\LITERAL_NUMBER));
+			$this->next_transition = new Transition(EXPSC_STATE_GROUND);
+			$this->after_dot = false;
+		}
+	}
+}
+
+class ExpressionScanner_ClosureReadState extends ExpressionScannerState
+{
+	/**
+	 * เก็บ closure ที่กำลังสร้างขึ้น
+	 * @var Closure
+	 */
+	private $closure;
+	/**
+	 * เก็บ scanner ที่เอาไว้ใช้ในการอ่าน expression ย่อย
+	 * @var ExpressionScanner
+	 */
+	private $sub_exp_scanner;
+
+	private function add_exp()
+	{
+		$this->sub_exp_scanner->finalize();
+		//ถ้าหาก Scanner ตัวลูกเกิดความผิดพลาดขึ้น ก็ให้หยุดการทำงาน
+		if($this->sub_exp_scanner->state === P\SC_STATE_DEAD)
+		{
+			$this->scanner->suicide($sub_exp_scanner->error);
+		}
+		else
+		{
+			$new_exp = $this->sub_exp_scanner->summarize();
+			if($new_exp !== null) $this->closure->add_expr($new_exp);
+		}
+	}
+
+	protected function operation($transition, $exp_result)
+	{
+		if($this->scanner->state === P\SC_STATE_WORKING)
+		{
+			$c = null;
+			if($transition->first)
+			{
+				$this->closure = new Closure();
+				$this->sub_exp_scanner = $this->scanner->exp_scanner_reuse->use_scanner();
+			}
+			elseif ($this->sub_exp_scanner->in_ground_state()
+					&& (($c = $this->scanner->get_current_char()) === "," 
+							|| $c === ")"))
+			{
+				switch ($c)
+				{
+					case ",":
+						$this->add_exp();
+						$this->sub_exp_scanner->reset();
+						$this->sub_exp_scanner->initialize();
+						break;
+					case ")":
+						$this->add_exp();
+						$this->scanner->_add_expression($this->closure);
+
+						$this->closure = null;
+						$this->sub_exp_scanner = null;
+
+						$this->next_transition = new Transition(EXPSC_STATE_GROUND);
+						break;
+				}
+			}
+			else
+			{
+				$this->sub_exp_scanner->advance_here();
+				//ถ้าหาก Scanner ตัวลูกเกิดความผิดพลาดขึ้น ก็ให้หยุดการทำงาน
+				if($this->sub_exp_scanner->state === P\SC_STATE_DEAD)
+				{
+					$this->scanner->suicide($this->sub_exp_scanner->error);
+				}
+			}
+		}
+		else
+		{
+			$this->sub_exp_scanner->finalize();
+			//ถ้าหาก Scanner ตัวลูกเกิดความผิดพลาดขึ้น ก็ให้หยุดการทำงาน
+			if($this->sub_exp_scanner->state === P\SC_STATE_DEAD)
+			{
+				$this->scanner->suicide($this->sub_exp_scanner->error);
+			}
+			else
+			{
+				$this->scanner->suicide(new Error($this, EP_ERROR_EXPECTED_CLOSE_PARENTHESIS));
+			}
+		}
+	}
+}
+
+class ExpressionScanner_IdExpReadState extends ExpressionScannerState
+{
+	private $sub_exp_scanner;
+
+	protected function operation($transition, $exp_result)
+	{
+		if($this->scanner->state === P\SC_STATE_WORKING)
+		{
+			if($transition->first)
+			{
+				$this->sub_exp_scanner = $this->scanner->exp_scanner_reuse->use_scanner();
+			}
+			elseif($this->scanner->get_current_char() === "}"
+					&& $this->sub_exp_scanner->in_ground_state())
+			{ //เมื่อพบตัวอักษร } ให้หยุดการอ่านนิพจน์ และเพิ่ม VariableExpression ลงใน expressionBuilder
+				$this->sub_exp_scanner->finalize();
+				$this->scanner->_add_expression(
+						new VariableExpression($this->sub_exp_scanner->summarize()));
+				$this->next_transition = new Transition(EXPSC_STATE_GROUND);
+			}
+			else
+			{ //อ่านต่อไป
+				$this->sub_exp_scanner->advance_here();
+				//ถ้าหาก Scanner ตัวลูกเกิดความผิดพลาดขึ้น ก็ให้หยุดการทำงาน
+				if($this->sub_exp_scanner->state === P\SC_STATE_DEAD)
+				{
+					$this->scanner->suicide($sub_exp_scanner->error);
+				}
+			}
+		}
+		else
+		{
+			$this->scanner->suicide(new Error($this, EP_ERROR_EXPECTED_CLOSE_CURLY_BRACE));
+		}
 	}
 }
 ?>
