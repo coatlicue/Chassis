@@ -2,24 +2,25 @@
 namespace Chassis\Parser;
 
 use Exception;
+use Chassis\Intermediate\Cursor;
 
 include_once __DIR__.'/Scanner.php';
 include_once __DIR__.'/ScannerDriver.php';
+include_once __DIR__.'/../Intermediate/Cursor.php';
 
 define('STATE_PRE_INTERMEDIATE',1);
 define('STATE_POST_INTERMEDIATE',2);
 
-class State
+abstract class State
 {
 	/**
-	 * เก็บ callable สำหรับทำงาน โดยจะรับพารามิเตอร์ดังนี้
-	 * 1. Transition จะรับ Transition ที่เป็นตัวส่งมายัง State นี้
-     * 2. Expectation_Result จะรับผลการคาดหมายสัญลักษณ์ ประกอบด้วยฟีลด์ succeed(ระบุว่าคาดหมายสำเร็จหรือไม่) และ symbol(สัญลักษณ์ที่จับไว้ได้)
-     * ก. สามารถย้ายไปทำงานยัง state อื่นได้โดยสร้างออบเจกต์ transition ลงในฟิลด์ next transition และกำหนดปลายทาง และ message
+	 * กำหนดการทำงานของ state ให้กับเมธอดนี้
+	 * ก. สามารถย้ายไปทำงานยัง state อื่นได้โดยสร้างออบเจกต์ transition ลงในฟิลด์ next transition และกำหนดปลายทาง และ message
      * ข. สามารถทำงานกับ scanner ได้เฉพาะ suicide และดึงตัวอักษร เท่านั้น
-	 * @var callable
+	 * @param Transition $transition Transition ที่ส่งมายัง state นี้
+	 * @param array $exp_result อาร์เรย์เก็บข้อมูลเกี่ยวกับการคาดหมายสัญลักษณ์ ประกอบด้วยคีย์ต่อไปนี้ : succeed, symbol, tag
 	 */
-	public $operation;
+	public abstract function operation($transition, $exp_result);
 	/**
 	 * expectation tree สำหรับคาดหมายสัญลักษณ์ก่อนที่จะเข้าสู่ state นี้
 	 * @var ExpectationTreeNode
@@ -39,6 +40,29 @@ class State
 	 * @var unknown
 	 */
 	public $intermediate_mode = 0;
+	/**
+	 * ระบุตำแหน่งเริ่มต้นที่ state นี้เริ่มทำงาน
+	 * @var Cursor
+	 */
+	public $start_cursor;
+	/**
+	 * ระบุ scanner ที่เป็นเจ้าของ state นี้
+	 * @var StateScanner
+	 */
+	public $scanner;
+	/**
+	 * สำหรับให้ scanner เรียก state นี้ขึ้นมาทำงาน
+	 * @param Transition $transition
+	 * @param array $exp_result
+	 */
+	public function enter($transition, $exp_result)
+	{
+		if($transition->first)
+		{
+			$this->start_cursor = clone $this->scanner->cursor;
+		}
+		$this->operation($transition, $exp_result);
+	}
 }
 
 class Transition
@@ -49,8 +73,8 @@ class Transition
 	 */
 	public $source;
 	/**
-	 * State ปลายทาง
-	 * @var State
+	 * เลขที่ของ State ปลายทาง
+	 * @var int
 	 */
 	public $destination;
 	/**
@@ -66,7 +90,7 @@ class Transition
 	
 	/**
 	 * 
-	 * @param State $destination state ปลายทาง
+	 * @param int $destination เลขที่ของ state ปลายทาง
 	 * @param mixed $data ข้อมูลที่จะส่งไปให้ state ปลายทาง
 	 */
 	public function __construct($destination, $data = null)
@@ -79,27 +103,30 @@ class Transition
 abstract class StateScanner extends Scanner
 {
 	/**
-	 * state เริ่มต้น
-	 * @var State
+	 * กำหนดเลขที่ของ state เริ่มต้น
+	 * @var int
 	 */
-	protected $initial_state;
+	protected $initial_state = 0;
 	/**
 	 * transition ที่จะส่งไปให้ state ในรอบการทำงานต่อไป
 	 * @var Transition
 	 */
 	protected $next_transition;
 	/**
-	 * ระบุว่าจะให้เริ่มทำงานก่อนที่จะเคลื่อนที่ไปยังตัวอักษรตัวแรกของ string หรือไม่
-	 * @var bool
+	 * เก็บอาร์เรย์ของ เลข state จับคู่กับ object ของ state
+	 * @var array
 	 */
+	protected $state_list = [];
 	
 	protected function _scan()
 	{
 		if($this->state === SC_STATE_INITIALIZING)
 		{
-			if(!($this->initial_state instanceof State)) throw new Exception("The initial state is not yet defined.");
+			if(!array_key_exists($this->initial_state, $this->state_list))
+				throw new Exception("Initial state is not yet defined.");
 			$this->next_transition = new Transition($this->initial_state);
-			$this->expecter->expectation_tree = $this->initial_state->expectation_tree;
+			$this->next_transition->first = true;
+			$this->expecter->expectation_tree = $this->state_list[$this->initial_state]->expectation_tree;
 		}
 		else
 		{
@@ -112,9 +139,9 @@ abstract class StateScanner extends Scanner
 					'tag' => $this->expecter->last_tag,
 				];
 				
-				$state = $trans->destination;
+				$state = $this->state_list[$trans->destination];
 				$state->next_transition = null;
-				call_user_func($state->operation, $trans, $exp_res);
+				$state->enter($trans, $exp_res);
 				
 				//หลังจาก state ทำงานเสร็จ
 				if($state->next_transition !== null)
@@ -122,10 +149,10 @@ abstract class StateScanner extends Scanner
 					$state->next_transition->source = $state;
 					$state->next_transition->first = true;
 					$this->next_transition = $state->next_transition;
-					$this->expecter->expectation_tree = $this->next_transition->destination->expectation_tree;
+					$this->expecter->expectation_tree = $this->state_list[$this->next_transition->destination]->expectation_tree;
 				
 					//ถ้า state นี้เป็น pre-intermediate หรือ state ถัดไปเป็น post intermediate ให้เรียก state ถัดไปขึ้นมาทำงานทันที
-					if($this->get_next_state()->intermediate_mode === STATE_POST_INTERMEDIATE
+					if($this->state_list[$this->get_next_state()]->intermediate_mode === STATE_POST_INTERMEDIATE
 							|| $state->intermediate_mode === STATE_PRE_INTERMEDIATE)
 					{
 						$this->_scan();	
@@ -139,76 +166,38 @@ abstract class StateScanner extends Scanner
 		}
 	}
 	/**
-	 * เรียกดูสถานะถัดไปที่จะถูกเรียกใช้
+	 * เรียกดูเลขที่ของ state ถัดไปที่จะถูกเรียกใช้
 	 * @return \Chassis\Parser\State
 	 */
 	public function get_next_state()
 	{
 		return $this->next_transition->destination;
 	}
+	/**
+	 * เพิ่ม state ลงในสารบบ
+	 * @param int $id เลขที่ของ state
+	 * @param State $state object ของ state
+	 */
+	public function add_state($id, $state)
+	{
+		$state->scanner = $this;
+		$this->state_list[$id] = $state;
+	}
 }
 
 class TestStateScanner extends StateScanner
 {
-	private $summary;
+	public $summary;
 	
 	public function __construct($parent)
 	{
 		parent::__construct($parent);
 		
-		$A = new State();
-		$B = new State();
-		$C = new State();
+		$this->add_state(1, new TestStateScanner_A());
+		$this->add_state(2, new TestStateScanner_B());
+		$this->add_state(3, new TestStateScanner_C());
 		
-		$A->expectation_tree = ExpectationTreeNode::create(["("]);
-		$A->operation = function($transition, $exp_result) use ($A, $B)
-		{
-			if($exp_result['symbol'] == "(")
-			{
-				$A->next_transition = new Transition($B);
-			}
-			else
-			{
-				$this->summary .= "A";
-				if($this->state === SC_STATE_FINALIZING)
-				{
-					$this->summary .= "$";
-				}
-			}
-		};
-		
-		$B->expectation_tree = ExpectationTreeNode::create([")", "["]);
-		$B->operation = function($transition, $exp_result) use ($B, $A, $C)
-		{
-			if($exp_result['symbol'] == ")")
-			{
-				$B->next_transition = new Transition($A);
-			}
-			else if($exp_result['symbol'] == "[")
-			{
-				$B->next_transition = new Transition($C);
-			}
-			else
-			{
-				$this->summary .= "B";
-			}
-		};
-		
-		$C->expectation_tree = ExpectationTreeNode::create(["]"]);
-		$C->operation = function($transition, $exp_result) use ($C, $B)
-		{
-			if($exp_result['symbol'] == "]")
-			{
-				$C->next_transition = new Transition($B);
-			}
-			else 
-			{
-				if($transition->first) $this->summary .= "!";
-				$this->summary .= "C";
-			}
-		};
-		
-		$this->initial_state = $A;
+		$this->initial_state = 1;
 	}
 	
 	protected function _summarize()
@@ -225,31 +214,88 @@ class TestStateScanner extends StateScanner
 	}
 }
 
-class TestStateScanner2 extends StateScanner
+class TestStateScanner_A extends State
 {
-	private $summ = "";
+	public function __construct()
+	{
+		$this->expectation_tree = ExpectationTreeNode::create(["("]);
+	}
+	
+	public function operation($transition, $exp_result)
+	{
+		if($exp_result['symbol'] == "(")
+		{
+			$this->next_transition = new Transition(2);
+		}
+		else
+		{
+			$this->scanner->summary .= "A";
+			if($this->scanner->state === SC_STATE_FINALIZING)
+			{
+				$this->scanner->summary .= "$";
+			}
+		}
+	}
+}
+
+class TestStateScanner_B extends State
+{
+	public function __construct()
+	{
+		$this->expectation_tree = ExpectationTreeNode::create([")", "["]);
+	}
+	
+	public function operation($transition, $exp_result)
+	{
+		if($exp_result['symbol'] == ")")
+		{
+			$this->next_transition = new Transition(1);
+		}
+		else if($exp_result['symbol'] == "[")
+		{
+			$this->next_transition = new Transition(3);
+		}
+		else
+		{
+			$this->scanner->summary .= "B";
+		}
+	}
+}
+
+class TestStateScanner_C extends State
+{
+	public function __construct()
+	{
+		$this->expectation_tree = ExpectationTreeNode::create(["]"]);
+	}
+	
+	public function operation($transition, $exp_result)
+	{
+		if($exp_result['symbol'] == "]")
+		{
+			$this->next_transition = new Transition(2);
+		}
+		else
+		{
+			if($transition->first) $this->scanner->summary .= "!";
+			$this->scanner->summary .= "C";
+		}
+	}
+}
+
+class TestIntermediateStateScanner extends StateScanner
+{
+	public $summ = "";
 	
 	public function __construct($parent)
 	{
 		parent::__construct($parent);
 		
-		$A = new State();
-		$B = new State();
-		$C = new State();
+		$this->add_state(1, new TestIntermediateStateScanner_A());
+		$this->add_state(2, new TestIntermediateStateScanner_B());
+		$this->add_state(3, new TestIntermediateStateScanner_C());
 		
-		$A->intermediate_mode = STATE_PRE_INTERMEDIATE;
-		$A->operation = function() use ($A, $B) 
-			{ $this->summ .= "A"; $A->next_transition = new Transition($B); };
-		
-		$B->intermediate_mode = 0;
-		$B->operation = function() use ($B, $C) 
-			{ $this->summ .= "B"; $B->next_transition = new Transition($C); };
-		
-		$C->intermediate_mode = STATE_POST_INTERMEDIATE;
-		$C->operation = function() use ($C, $A)
-			{ $this->summ .= "C"; $C->next_transition = new Transition($A); };
-		
-		$this->initial_state = $A;
+		$this->initial_state = 1;
 	}
 	
 	public function _summarize()
@@ -262,8 +308,111 @@ class TestStateScanner2 extends StateScanner
 		$scd = new ScannerDriver();
 		$scd->str = "!!!";
 		
-		$sc = new TestStateScanner2($scd);
+		$sc = new TestIntermediateStateScanner($scd);
 	
 		assert($scd->start() === "ABCABCABCABC", "test intermediate state");
+	}
+}
+
+class TestIntermediateStateScanner_A extends State
+{
+	public function __construct()
+	{
+		$this->intermediate_mode = STATE_PRE_INTERMEDIATE;
+	}
+	
+	public function operation($transition, $exp_result)
+	{
+		$this->scanner->summ .= "A"; 
+		$this->next_transition = new Transition(2);
+	}
+}
+
+class TestIntermediateStateScanner_B extends State
+{
+	public function operation($transition, $exp_result)
+	{
+		$this->scanner->summ .= "B";
+		$this->next_transition = new Transition(3);
+	}
+}
+
+class TestIntermediateStateScanner_C extends State
+{
+	public function __construct()
+	{
+		$this->intermediate_mode = STATE_POST_INTERMEDIATE;
+	}
+	
+	public function operation($transition, $exp_result)
+	{
+		$this->scanner->summ .= "C"; 
+		$this->next_transition = new Transition(1);
+	}
+}
+
+class TestStateScanner_StartCursor extends StateScanner
+{
+	public $summ = [];
+	
+	public function __construct($parent)
+	{
+		parent::__construct($parent);
+		
+		$this->add_state(1, new TestStateScanner_StartCursor_A());
+		$this->add_state(2, new TestStateScanner_StartCursor_B());
+		
+		$this->initial_state = 1;
+	}
+	
+	public function _summarize()
+	{
+		return $this->summ;
+	}
+	
+	public static function _test_start_cursor()
+	{
+		//start at state A.
+		//when state A encounters 1, it will transfer to state B.
+		//when state B encounters 0, it will transfer to state A.
+		
+		$scd = new ScannerDriver();
+		$scd->str = "00011111100";
+		
+		$sc = new TestStateScanner_StartCursor($scd);
+		
+		$res = $scd->start();
+		
+		echo "TEST StateScanner: start cursor.";
+		assert($res[0]->position === 0, "#1");
+		assert($res[1]->position === 3, "#2");
+		assert($res[2]->position === 9, "#3");
+	}
+}
+
+class TestStateScanner_StartCursor_A extends State
+{
+	public function operation($transition, $exp_result)
+	{
+		if($transition->first) array_push($this->scanner->summ, $this->start_cursor);
+		if($this->scanner->peek_ahead() === "1")
+		{
+			$this->next_transition = new Transition(2);
+		}
+	}
+}
+
+class TestStateScanner_StartCursor_B extends State
+{
+	public function operation($transition, $exp_result)
+	{
+		if($transition->first)
+		{
+			array_push($this->scanner->summ, $this->start_cursor);
+		}
+		if($this->scanner->peek_ahead() === "0")
+		{
+			$this->next_transition = new Transition(1);
+		}
 	}
 }
